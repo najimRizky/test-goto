@@ -1,6 +1,8 @@
+import ContactList from "../components/templates/ContactList"
+
 const Home = () => {
   return (
-    <div>Home</div>
+    <ContactList />
   )
 }
 
