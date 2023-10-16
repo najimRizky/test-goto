@@ -1,9 +1,12 @@
+import ApolloProvider from "./providers/ApolloProvider";
 import RouterProvider from "./providers/RouterProvider";
 import "./styles/variables.css"
 
 function App() {
   return (
-    <RouterProvider />
+    <ApolloProvider>
+      <RouterProvider />
+    </ApolloProvider>
   );
 }
 
