@@ -1,4 +1,5 @@
 import RouterProvider from "./providers/RouterProvider";
+import "./styles/variables.css"
 
 function App() {
   return (
