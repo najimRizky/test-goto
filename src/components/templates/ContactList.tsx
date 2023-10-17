@@ -10,8 +10,13 @@ import {
 import ContactCard from "../organism/ContactCard"
 import { isAlphaNumeric } from "../../utils/string-helper"
 import { css } from "@emotion/css"
+import FloatingActionButton from "../molecules/FloatingActionButton"
+import PlusIcon from "../../icons/PlusIcon"
+import { useNavigate } from "react-router-dom"
 
 const ContactList: FC = () => {
+  const navigate = useNavigate()
+
   const { loading, error, data } = useQuery(GET_CONTACT_LIST, {
     variables: {
       limit: 10,
@@ -62,12 +67,10 @@ const ContactList: FC = () => {
         <Fragment key={contact.id}>
           {showInitial &&
             <div
-              className={
-                css({
-                  padding: "0.25rem 1rem",
-                  borderBottom: "1px solid var(--gray-light)",
-                })
-              }
+              className={css({
+                padding: "0.25rem 1rem",
+                borderBottom: "1px solid var(--gray-light)",
+              })}
             >
               {initial}
             </div>}
@@ -87,6 +90,13 @@ const ContactList: FC = () => {
       <main>
         {renderContactList}
       </main>
+      <FloatingActionButton
+        onClick={() => navigate("/form")}
+        isIcon={true}
+        position="bottom-right"
+      >
+        <PlusIcon width={42} />
+      </FloatingActionButton>
       {/* <button onClick={handleSubmit}>Add Contact</button> */}
     </>
   )
