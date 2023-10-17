@@ -30,3 +30,5 @@ const Button = styled.button<Props>`
 `
 
 export default Button;
+
+export type { Props as ButtonProps };
