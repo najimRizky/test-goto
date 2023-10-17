@@ -2,9 +2,9 @@ import { FC } from "react"
 import { Contact } from "../../services/contact"
 import styled from "@emotion/styled"
 import TextMuted from "../atoms/TextMuted"
-import Button from "../atoms/Button"
 import TrippleDotIcon from "../../icons/TrippleDotIcon"
 import Dropdown from "../molecules/Dropdown"
+import ButtonIcon from "../atoms/ButtonIcon"
 
 interface Props {
   contact: Contact
@@ -24,9 +24,9 @@ const ContactCard: FC<Props> = ({ contact }) => {
       </div>
       <Dropdown
         trigger={
-          <Button bg="white" color="black">
+          <ButtonIcon bg="white" color="black">
             <TrippleDotIcon />
-          </Button>
+          </ButtonIcon>
         }
         menu={[
           {
