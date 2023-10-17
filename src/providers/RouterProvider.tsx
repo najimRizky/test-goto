@@ -2,6 +2,7 @@ import { RouterProvider as ReactRouterProvider, createBrowserRouter } from "reac
 import BaseLayout from "../layouts/BaseLayout"
 import Home from "../pages/Home"
 import Error from "../pages/Error"
+import Form from "../pages/Form"
 
 const router = createBrowserRouter([
   {
@@ -11,7 +12,11 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />
-      }
+      }, 
+      {
+        path: "form",
+        element: <Form />
+      },
     ]
   }, {
     path: "*",
