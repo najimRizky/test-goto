@@ -1,5 +1,13 @@
 import { TypedDocumentNode, gql } from "@apollo/client";
 
+interface QueryVariables {
+  limit?: number;
+  offset?: number;
+  total?: number;
+  where?: any;
+  order_by?: any;
+}
+
 interface Phone {
   number: string;
 }
@@ -13,18 +21,10 @@ export interface Contact {
 }
 
 interface Data {
-  contact: Contact[];
+  contacts: Contact[];
 }
 
-interface GetContactListType {
-  contact?: Contact[];
-  limit?: number;
-  offset?: number;
-  total?: number;
-  where?: any;
-}
-
-export const GET_CONTACT_LIST: TypedDocumentNode<Data, GetContactListType> = gql`
+export const GET_CONTACT_LIST: TypedDocumentNode<Data, QueryVariables> = gql`
 query GetContactList (
   $distinct_on: [contact_select_column!], 
   $limit: Int, 
@@ -32,7 +32,7 @@ query GetContactList (
   $order_by: [contact_order_by!], 
   $where: contact_bool_exp
 ) {
-  contact (
+  contacts: contact (
     distinct_on: $distinct_on, 
     limit: $limit, 
     offset: $offset, 
@@ -45,6 +45,11 @@ query GetContactList (
     last_name
     phones {
       number
+    }
+  }
+  metadata: contact_aggregate {
+    aggregate{
+      count
     }
   }
 }`
