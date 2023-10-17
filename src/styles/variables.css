@@ -1,7 +1,17 @@
 :root {
-  --base-padding: 1rem;
-  --base-radius: 0.5rem;
-  --base-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-  --base-transition: 0.3s ease-in-out;
-  --base-margin: 1rem;
+  --padding: 1rem;
+  --radius: 0.5rem;
+  --shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+  --transition: 0.2s ease-in-out;
+  --margin: 1rem;
+
+  /* Colors */
+  --primary: #664DFF;
+  
+  --white: #fff;
+  --black: #101010;
+
+  --gray: #b5b5b5;
+  --gray-light: #F0F0F0;
+  --gray-dark: #7e7e7e;
 }
