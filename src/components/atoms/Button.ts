@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
 
 interface Props {
-  bg?: "primary" | "transparent" | "white";
+  bg?: "primary" | "transparent" | "white" | "black" | "red" | "gray" | "gray-light";
   width?: string | number;
   height?: string | number;
-  color?: "primary" | "black" | "white";
+  color?: "primary" | "black" | "white" | "red" | "gray";
 }
 
 const Button = styled.button<Props>`
@@ -14,11 +14,11 @@ const Button = styled.button<Props>`
   border-radius: 10rem;
   cursor: pointer;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 600;
   height: ${({ height }) => height ? height : "2.5rem"};
   width: ${({ width }) => width ? width : "auto"};
   transition: var(--transition);
-  padding: 0 0.5rem;
+  padding: 0 1rem;
 
   @media (hover: hover) {
     &:hover {
