@@ -69,7 +69,8 @@ const ContactList: FC = () => {
           {showInitial &&
             <div
               className={css({
-                padding: "0.25rem 1rem",
+                padding: "0.25rem 0 0.5rem 1.9rem",
+                borderTop: "1px solid transparent",
                 borderBottom: "1px solid var(--gray-light)",
                 fontWeight: 600,
                 color: "var(--gray-dark)",
