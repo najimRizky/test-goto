@@ -5,6 +5,7 @@ import TextMuted from "../atoms/TextMuted"
 import TrippleDotIcon from "../../icons/TrippleDotIcon"
 import Dropdown from "../molecules/Dropdown"
 import ButtonIcon from "../atoms/ButtonIcon"
+import Avatar from "../atoms/Avatar"
 
 interface Props {
   contact: Contact
@@ -13,14 +14,20 @@ interface Props {
 const ContactCard: FC<Props> = ({ contact }) => {
   const fullName = `${contact.first_name} ${contact.last_name}`
   const phones = contact.phones.map((phone) => phone.number).join(", ")
+  const avatarInitial = `${contact.first_name[0]}${contact.last_name[0]}`.toUpperCase()
 
   return (
     <ContactCardStyled>
-      <div className="info">
-        <h3 className="full-name">{fullName}</h3>
-        <TextMuted className="phones">
-          {phones || "No phone number"}
-        </TextMuted>
+      <div className="content">
+        <Avatar>
+          {avatarInitial}
+        </Avatar>
+        <div className="info">
+          <h3 className="full-name">{fullName}</h3>
+          <TextMuted className="phones">
+            {phones || "No phone number"} 
+          </TextMuted>
+        </div>
       </div>
       <Dropdown
         trigger={
@@ -64,20 +71,35 @@ const ContactCardStyled = styled.div`
     border-top: 1px solid var(--gray-light);
   }
 
-  .info {
+  .content {
     max-width: 85%;
-    .full-name {
-      font-size: 1rem;
-      font-weight: 600;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+
+    .info {
+      max-width: 80%;
+      display: grid;
+      gap: 0.5rem;
+
+      .full-name {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+    
+      .phones {
+        max-width: 100%;
+        font-size: 0.8rem;
+      }
+      
+      .full-name, .phones {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1;
+      }
     }
-  
-    .phones {
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-size: 0.8rem;
-    }
+
   }
   
 `
