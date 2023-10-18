@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout"
 import Home from "../pages/Home"
 import Error from "../pages/Error"
 import Form from "../pages/Form"
+import Detail from "../pages/Detail"
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
         path: "form",
         element: <Form />
       },
+      {
+        path: ":id",
+        element: <Detail />
+      }
     ]
   }, {
     path: "*",
