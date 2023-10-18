@@ -70,6 +70,9 @@ const ContactList: FC = () => {
               className={css({
                 padding: "0.25rem 1rem",
                 borderBottom: "1px solid var(--gray-light)",
+                fontWeight: 600,
+                color: "var(--gray-dark)",
+                fontSize: "0.875rem",
               })}
             >
               {initial}
