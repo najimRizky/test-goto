@@ -13,6 +13,7 @@ import { css } from "@emotion/css"
 import FloatingActionButton from "../molecules/FloatingActionButton"
 import PlusIcon from "../../icons/PlusIcon"
 import { useNavigate } from "react-router-dom"
+import Header from "../organism/Header"
 
 const ContactList: FC = () => {
   const navigate = useNavigate()
@@ -90,6 +91,7 @@ const ContactList: FC = () => {
 
   return (
     <>
+      <Header title="Contacts" />
       <main>
         {renderContactList}
       </main>
