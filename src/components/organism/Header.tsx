@@ -1,9 +1,53 @@
-import { FC } from "react"
+import { FC, ReactElement } from "react"
+import ButtonIcon from "../atoms/ButtonIcon"
+import styled from "@emotion/styled"
+import ChevronLeftIcon from "../../icons/ChevronLeftIcon"
+import { css } from "@emotion/css"
+import { useNavigate } from "react-router-dom"
 
-const Header: FC = () => {
+interface Props {
+  title?: string,
+  backButton?: boolean
+  rightAction?: ReactElement
+}
+
+const Header: FC<Props> = ({ backButton, title, rightAction }) => {
+  const navigate = useNavigate()
+
   return (
-    <header>Header</header>
+    <HeaderStyled>
+      <div className="left-panel">
+        {backButton &&
+          <ButtonIcon
+            onClick={() => navigate(-1)}
+            size="medium"
+            bg="white"
+            color="black"
+            className={css({ marginLeft: -8 })}
+          >
+            <ChevronLeftIcon width={36} />
+          </ButtonIcon>
+        }
+        {title && <h1>{title}</h1>}
+      </div>
+      {rightAction && rightAction}
+    </HeaderStyled>
   )
 }
 
 export default Header
+
+const HeaderStyled = styled.header`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--gray);
+
+  .left-panel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+`
