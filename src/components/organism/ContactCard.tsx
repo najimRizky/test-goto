@@ -78,7 +78,7 @@ const ContactCardStyled = styled.div`
     align-items: center;
 
     .info {
-      max-width: 80%;
+      max-width: 90%;
       display: grid;
       gap: 0.5rem;
 
