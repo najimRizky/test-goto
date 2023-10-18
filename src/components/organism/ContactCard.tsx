@@ -14,7 +14,7 @@ interface Props {
 const ContactCard: FC<Props> = ({ contact }) => {
   const fullName = `${contact.first_name} ${contact.last_name}`
   const phones = contact.phones.map((phone) => phone.number).join(", ")
-  const avatarInitial = `${contact.first_name[0]}${contact.last_name[0]}`.toUpperCase()
+  const avatarInitial = `${contact.first_name[0] || ""}${contact.last_name[0] || ""}`.toUpperCase()
 
   return (
     <ContactCardStyled>
