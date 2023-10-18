@@ -16,10 +16,10 @@ const ContactCard: FC<Props> = ({ contact }) => {
 
   return (
     <ContactCardStyled>
-      <div>
+      <div className="info">
         <h3 className="full-name">{fullName}</h3>
         <TextMuted className="phones">
-          {phones}
+          {phones || "No phone number"}
         </TextMuted>
       </div>
       <Dropdown
@@ -63,16 +63,21 @@ const ContactCardStyled = styled.div`
   &:first-of-type {
     border-top: 1px solid var(--gray-light);
   }
-  
-  .full-name {
-    font-size: 1rem;
-    font-weight: 600;
-  }
 
-  .phones {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 0.8rem;
+  .info {
+    max-width: 85%;
+    .full-name {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+  
+    .phones {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 0.8rem;
+    }
   }
+  
 `
