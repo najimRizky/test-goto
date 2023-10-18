@@ -20,8 +20,10 @@ const Button = styled.button<Props>`
   transition: var(--transition);
   padding: 0 0.5rem;
 
-  &:hover {
-    filter: brightness(0.95);
+  @media (hover: hover) {
+    &:hover {
+      filter: brightness(0.95);
+    }
   }
 
   &:active {
