@@ -33,7 +33,8 @@ const Dropdown: FC<Props> = ({ menu, trigger, position = "bottom-right" }) => {
           {menu.map((item, index) => (
             <li
               key={index}
-              onClick={() => {
+              onClick={(e: any) => {
+                e.stopPropagation()
                 item.onClick && item.onClick()
                 setIsOpen(false)
               }}

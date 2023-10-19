@@ -1,13 +1,15 @@
 import styled from "@emotion/styled";
 
 interface Props {
-  size?: "small" | "medium" | "large";
+  size?: "small" | "medium" | "large" | "extraLarge" | "crazyLarge";
 }
 
 const avatarSize = {
   small: "2rem",
   medium: "2.5rem", 
   large: "3rem",
+  extraLarge: "4rem",
+  crazyLarge: "8rem",
 }
 
 const Avatar = styled.div<Props>`

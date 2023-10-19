@@ -86,3 +86,37 @@ mutation AddContactWithPhones(
   }
 }
 `
+
+export const GET_CONTACT_DETAIL: TypedDocumentNode<{ contact: Contact }, { id: number }> = gql`
+query GetContactDetail($id: Int!){
+  contact: contact_by_pk(id: $id) {
+    last_name
+    id
+    first_name
+    created_at
+    phones {
+      number
+    }
+  }
+}
+`
+
+interface UpdateContactType {
+  id: number;
+  _set: {
+    first_name?: string;
+    last_name?: string;
+    phones?: Phone[];
+  }
+}
+
+export const UPDATE_CONTACT: TypedDocumentNode<any, UpdateContactType> = gql`
+mutation EditContactById($id: Int!, $_set: contact_set_input) {
+  update_contact_by_pk(pk_columns: {id: $id}, _set: $_set) {
+    first_name
+    last_name
+  }
+}
+
+
+`
