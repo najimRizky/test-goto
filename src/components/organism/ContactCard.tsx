@@ -8,6 +8,11 @@ import ButtonIcon from "../atoms/ButtonIcon"
 import Avatar from "../atoms/Avatar"
 import { NavLink, useNavigate } from "react-router-dom"
 import Container from "../atoms/Container"
+import Text from "../atoms/Text"
+import { Flex } from "../atoms/Flex"
+import PencilIcon from "../../icons/PencilIcon"
+import { css } from "@emotion/css"
+import TrashIcon from "../../icons/TrashIcon"
 
 interface Props {
   contact: Contact
@@ -30,7 +35,7 @@ const ContactCard: FC<Props> = ({ contact }) => {
             {fullName}
           </h3>
           <TextMuted className="phones">
-            {phones || "No phone number"} 
+            {phones || "No phone number"}
           </TextMuted>
         </div>
       </NavLink>
@@ -42,17 +47,25 @@ const ContactCard: FC<Props> = ({ contact }) => {
         }
         menu={[
           {
-            label: "Edit",
-            onClick: () => {
-              navigate(`/${contact.id}`)
-            }
+            label: <Flex className={css({ gap: "0.5rem !important" })}>
+              <PencilIcon width={18} />Edit Contact
+            </Flex>,
+            onClick: () => { navigate(`/${contact.id}?editContact=true`) }
           },
           {
-            label: "Delete",
+            label: <Flex className={css({ gap: "0.5rem !important", color:"var(--red-dark)" })}>
+              <TrashIcon width={18} />Delete Contact
+            </Flex>,
             onClick: () => {
               alert("Delete")
             }
-          }
+          },
+          ...contact.phones.slice(0,2).map((phone, index) => ({
+            label: <Text.P className={css({textOverflow: "ellipsis", whiteSpace: "nowrap", width: "9rem", overflow: "hidden"})}>
+              Edit {phone.number}
+            </Text.P>,
+            onClick: () => { navigate(`/${contact.id}?editPhone=${index}`) }
+          }))
         ]}
       />
     </ContactCardStyled>
@@ -67,10 +80,13 @@ const ContactCardStyled = styled(Container)`
   display: flex; 
   justify-content: space-between;
   align-items: center;
+  transition: var(--transition);
 
-  /* &:active {
-    background-color: var(--gray-light);
-  } */
+  @media (hover: hover) {
+    &:hover {
+      box-shadow: var(--shadow);
+    }
+  }
 
   &:first-of-type {
     border-top: 1px solid var(--gray-light);
