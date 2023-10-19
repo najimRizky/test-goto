@@ -1,5 +1,6 @@
 import Header from "../components/organism/Header"
-import AddContactForm from "../components/templates/AddContactForm"
+import ContactForm from "../components/templates/ContactForm"
+// import AddContactForm from "../components/templates/AddContactForm"
 
 const Form = () => {
   return (
@@ -8,7 +9,8 @@ const Form = () => {
         title={"Add Contact"}
         backPath={"/"}
       />
-      <AddContactForm />
+      {/* <AddContactForm /> */}
+      <ContactForm />
     </>
   )
 }

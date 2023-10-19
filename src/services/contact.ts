@@ -115,7 +115,7 @@ interface UpdateContactType {
   }
 }
 
-export const UPDATE_CONTACT: TypedDocumentNode<any, UpdateContactType> = gql`
+export const EDIT_CONTACT: TypedDocumentNode<any, UpdateContactType> = gql`
 mutation EditContactById($id: Int!, $_set: contact_set_input) {
   update_contact_by_pk(pk_columns: {id: $id}, _set: $_set) {
     first_name

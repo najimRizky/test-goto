@@ -17,7 +17,7 @@ import Container from "../atoms/Container"
 import Text from "../atoms/Text"
 import Pagination from "../organism/Pagination"
 
-const per_page = 1
+const per_page = 10
 
 const ContactList: FC = () => {
   const navigate = useNavigate()

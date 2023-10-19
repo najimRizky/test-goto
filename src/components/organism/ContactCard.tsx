@@ -8,7 +8,6 @@ import ButtonIcon from "../atoms/ButtonIcon"
 import Avatar from "../atoms/Avatar"
 import { NavLink, useNavigate } from "react-router-dom"
 import Container from "../atoms/Container"
-import Text from "../atoms/Text"
 import { Flex } from "../atoms/Flex"
 import PencilIcon from "../../icons/PencilIcon"
 import { css } from "@emotion/css"
@@ -86,7 +85,7 @@ const ContactCard: FC<Props> = ({ contact }) => {
               label: <Flex className={css({ gap: "0.5rem !important" })}>
                 <PencilIcon width={18} />Edit Contact
               </Flex>,
-              onClick: () => { navigate(`/${contact.id}`, { state: { editContact: contact.id } }) }
+              onClick: () => { navigate(`/form?id=${contact.id}`) }
             },
             {
               label: <Flex className={css({ gap: "0.5rem !important", color: "var(--red-dark)" })}>
@@ -94,18 +93,6 @@ const ContactCard: FC<Props> = ({ contact }) => {
               </Flex>,
               onClick: () => handleDelete(contact.id)
             },
-            ...contact.phones.slice(0, 2).map((phone) => ({
-              label: <Text.P className={css({ textOverflow: "ellipsis", whiteSpace: "nowrap", width: "12rem", overflow: "hidden" })}>
-                Edit {phone.number}
-              </Text.P>,
-              onClick: () => { navigate(`/${contact.id}`, { state: { editPhone: phone.number } }) }
-            })),
-            {
-              label: <Text.P>
-                Add / Edit Other Phones
-              </Text.P>,
-              onClick: () => { navigate(`/${contact.id}`) }
-            }
           ]}
         />
       </ContactCardStyled>

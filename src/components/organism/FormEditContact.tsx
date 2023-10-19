@@ -1,7 +1,7 @@
 import { FC, useState } from "react"
 import FormControl from "../molecules/FormControl"
 import { useMutation } from "@apollo/client"
-import { GET_CONTACT_DETAIL, UPDATE_CONTACT } from "../../services/contact"
+import { GET_CONTACT_DETAIL, EDIT_CONTACT } from "../../services/contact"
 import ButtonActionform from "../molecules/ButtonActionform"
 import { useNavigate } from "react-router-dom"
 
@@ -17,7 +17,7 @@ interface Props {
 const FormEditContact: FC<Props> = ({ onClose, data, contactId }) => {
   const navigate = useNavigate()
 
-  const [updateContact, { loading }] = useMutation(UPDATE_CONTACT, {
+  const [updateContact, { loading }] = useMutation(EDIT_CONTACT, {
     refetchQueries: [
       GET_CONTACT_DETAIL,
       `GetContactDetail`
