@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@apollo/client"
-import { DELETE_CONTACT, DELETE_NUMBER, GET_CONTACT_DETAIL } from "../../services/contact"
+import { DELETE_CONTACT, DELETE_PHONE, GET_CONTACT_DETAIL } from "../../services/contact"
 import { useNavigate, useParams } from "react-router-dom"
 import MainContent from "../atoms/MainContent"
 import Container from "../atoms/Container"
@@ -29,7 +29,7 @@ const ContactDetail = () => {
   const { handleClose: handleCloseEdit, handleOpen: handleOpenEdit, isOpen: isOpenedit } = useModal()
   const { handleClose: handleClosePhone, handleOpen: handleOpenPhone, isOpen: isOpenPhone } = useModal()
 
-  const [deletePhone] = useMutation(DELETE_NUMBER)
+  const [deletePhone] = useMutation(DELETE_PHONE)
   const [deleteContact] = useMutation(DELETE_CONTACT)
 
   const [selectedPhone, setSelectedPhone] = useState<string>()

@@ -2,7 +2,7 @@ import { FC, useState } from "react"
 import FormControl from "../molecules/FormControl"
 import ButtonActionform from "../molecules/ButtonActionform"
 import { useMutation } from "@apollo/client"
-import { ADD_NUMBER, EDIT_NUMBER, GET_CONTACT_DETAIL } from "../../services/contact"
+import { ADD_PHONE, EDIT_PHONE, GET_CONTACT_DETAIL } from "../../services/contact"
 
 interface Props {
   onClose: () => void
@@ -11,14 +11,14 @@ interface Props {
 }
 
 const FormAddEditPhone: FC<Props> = ({ onClose, data, contactId }) => {
-  const [addNumber, { loading: loadingAddNumber }] = useMutation(ADD_NUMBER, {
+  const [addPhone, { loading: loadingAddPhone }] = useMutation(ADD_PHONE, {
     refetchQueries: [
       GET_CONTACT_DETAIL,
       `GetContactDetail`
     ]
   })
 
-  const [editNumber, { loading: loadingEditNumber }] = useMutation(EDIT_NUMBER, {
+  const [editPhone, { loading: loadingEditPhone }] = useMutation(EDIT_PHONE, {
     refetchQueries: [
       GET_CONTACT_DETAIL,
       `GetContactDetail`
@@ -36,14 +36,14 @@ const FormAddEditPhone: FC<Props> = ({ onClose, data, contactId }) => {
     e.preventDefault()
 
     if (data) {
-      handleEditNumber()
+      handleEditPhone()
     } else {
-      handleAddNumber()
+      handleAddPhone()
     }
   }
 
-  const handleAddNumber = () => {
-    addNumber({
+  const handleAddPhone = () => {
+    addPhone({
       variables: {
         contact_id: contactId,
         phone_number: form
@@ -55,8 +55,8 @@ const FormAddEditPhone: FC<Props> = ({ onClose, data, contactId }) => {
     })
   }
 
-  const handleEditNumber = () => {
-    editNumber({
+  const handleEditPhone = () => {
+    editPhone({
       variables: {
         pk_columns: {
           contact_id: contactId,
@@ -83,7 +83,7 @@ const FormAddEditPhone: FC<Props> = ({ onClose, data, contactId }) => {
         required
       />
       <ButtonActionform
-        loading={loadingAddNumber || loadingEditNumber}
+        loading={loadingAddPhone || loadingEditPhone}
         onCancel={onClose}
       />
     </form>
