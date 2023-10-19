@@ -1,6 +1,6 @@
-import { useQuery } from "@apollo/client"
-import { GET_CONTACT_DETAIL } from "../../services/contact"
-import { useParams } from "react-router-dom"
+import { useMutation, useQuery } from "@apollo/client"
+import { DELETE_CONTACT, DELETE_NUMBER, GET_CONTACT_DETAIL } from "../../services/contact"
+import { useNavigate, useParams } from "react-router-dom"
 import MainContent from "../atoms/MainContent"
 import Container from "../atoms/Container"
 import { FlexJustifyBetween, FlexJustifyCenter } from "../atoms/Flex"
@@ -18,12 +18,29 @@ import PencilIcon from "../../icons/PencilIcon"
 import TrashIcon from "../../icons/TrashIcon"
 import { useState } from "react"
 import FormPhone from "../organism/FormPhone"
+import ModalDelete from "../organism/ModalDelete"
 
 const ContactDetail = () => {
+  const navigate = useNavigate()
+
   const { handleClose: handleCloseEdit, handleOpen: handleOpenEdit, isOpen: isOpenedit } = useModal()
   const { handleClose: handleClosePhone, handleOpen: handleOpenPhone, isOpen: isOpenPhone } = useModal()
 
+  const [deleteContact] = useMutation(DELETE_CONTACT)
+  const [deletePhone] = useMutation(DELETE_NUMBER)
+
   const [selectedPhone, setSelectedPhone] = useState<string>()
+  const [deleteProps, setDeleteProps] = useState<{
+    onConfirm?: () => void,
+    message: string,
+    isOpen: boolean,
+  }>()
+
+  const params = useParams()
+  const id = Number(params.id || 0)
+
+  const { data, loading, refetch } = useQuery(GET_CONTACT_DETAIL, { variables: { id } })
+  const { contact } = data || { contact: null }
 
   const handleFormPhone = (number: string = "") => {
     if (number) setSelectedPhone(number)
@@ -36,11 +53,52 @@ const ContactDetail = () => {
     handleClosePhone()
   }
 
-  const params = useParams()
-  const id = Number(params.id || 0)
+  const handleDelete = (type: "contact" | "phone", data: any) => {
+    let message = ""
+    let onConfirm = undefined
+    if (type === "contact") {
+      message = "Are you sure you want to delete this contact?"
+      onConfirm = () => handleDeleteContact()
+    } else {
+      message = "Are you sure you want to delete this phone?"
+      onConfirm = () => handleDeletePhone(data.number)
+    }
+    setDeleteProps({
+      message,
+      onConfirm,
+      isOpen: true
+    })
+  }
 
-  const { data, loading } = useQuery(GET_CONTACT_DETAIL, { variables: { id } })
-  const { contact } = data || { contact: null }
+  const handleDeletePhone = (phone: string) => {
+    deletePhone({
+      variables: {
+        contact_id: id,
+        number: phone
+      }
+    }).then(() => {
+      refetch()
+      setDeleteProps({
+        isOpen: false,
+        message: "",
+        onConfirm: undefined
+      })
+    }).catch(() => {
+      alert("error")
+    })
+  }
+
+  const handleDeleteContact = () => {
+    deleteContact({
+      variables: {
+        id
+      }
+    }).then(() => {
+      navigate("/")
+    }).catch(() => {
+      alert("error")
+    })
+  }
 
   if (loading) return <p>Loading...</p>
   if (!contact) return <p>Error {":("}</p>
@@ -66,7 +124,7 @@ const ContactDetail = () => {
             <ButtonIcon onClick={handleOpenEdit} bg="yellow" color="black" size="small" >
               <PencilIcon width={18} />
             </ButtonIcon>
-            <ButtonIcon onClick={handleOpenEdit} bg="red" color="white" size="small" >
+            <ButtonIcon onClick={() => handleDelete("contact", contact)} bg="red" color="white" size="small" >
               <TrashIcon width={18} />
             </ButtonIcon>
           </FlexJustifyCenter>
@@ -80,14 +138,18 @@ const ContactDetail = () => {
               </Button>
             </FlexJustifyBetween>
             <div className={css({ marginTop: "1rem" })}>
-              {contact.phones.map((phone, index) => (
+              {contact.phones.length > 0 ? contact.phones.map((phone, index) => (
                 <PhoneCard
                   key={index}
                   number={phone.number}
                   onEdit={() => handleFormPhone(phone.number)}
-                  onDelete={() => console.log("delete")}
+                  onDelete={() => handleDelete("phone", phone)}
                 />
-              ))}
+              )) : (
+                <Text.P>
+                  No phone number
+                </Text.P>
+              )}
             </div>
           </div>
         </Container>
@@ -113,6 +175,14 @@ const ContactDetail = () => {
           onClose={handleCloseFormPhone}
         />
       </Modal>
+
+      {/* Modal Delete Contact/Phone */}
+      <ModalDelete
+        isOpen={deleteProps?.isOpen || false}
+        onClose={() => setDeleteProps(undefined)}
+        onConfirm={deleteProps?.onConfirm}
+        message={deleteProps?.message}
+      />
     </>
   )
 }

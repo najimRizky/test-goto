@@ -140,3 +140,23 @@ mutation AddNumberToContact ($contact_id: Int!, $phone_number:String!) {
   }
 }
 `
+
+export const DELETE_CONTACT: TypedDocumentNode<any, { id: number }> = gql`
+mutation DeleteContact($id: Int!) {
+  delete_contact_by_pk(id: $id) {
+    first_name
+    last_name
+    id
+  }
+}
+`
+
+export const DELETE_NUMBER: TypedDocumentNode<any, { contact_id: number, number: string }> = gql`
+mutation DeleteNumber($contact_id: Int!, $number: String!) {
+  delete_phone_by_pk(contact_id: $contact_id, number: $number) {
+    contact {
+      id
+    }
+  }
+}
+`
