@@ -4,6 +4,7 @@ import styled from "@emotion/styled"
 import ChevronLeftIcon from "../../icons/ChevronLeftIcon"
 import { css } from "@emotion/css"
 import { useNavigate } from "react-router-dom"
+import Container from "../atoms/Container"
 
 interface Props {
   title?: string,
@@ -16,21 +17,25 @@ const Header: FC<Props> = ({ backPath, title, rightAction }) => {
 
   return (
     <HeaderStyled>
-      <div className="left-panel">
-        {backPath &&
-          <ButtonIcon
-            onClick={() => navigate(backPath)}
-            size="medium"
-            bg="white"
-            color="black"
-            className={css({ marginLeft: -8 })}
-          >
-            <ChevronLeftIcon width={36} />
-          </ButtonIcon>
-        }
-        {title && <h1>{title}</h1>}
-      </div>
-      {rightAction && rightAction}
+      <Container>
+        <div className="header-content">
+          <div className="left-panel">
+            {backPath &&
+              <ButtonIcon
+                onClick={() => navigate(backPath)}
+                size="small"
+                bg="white"
+                color="black"
+                className={css({ marginLeft: -8 })}
+              >
+                <ChevronLeftIcon width={36} />
+              </ButtonIcon>
+            }
+            {title && <h1>{title}</h1>}
+          </div>
+          {rightAction && rightAction}
+        </div>
+      </Container>
     </HeaderStyled>
   )
 }
@@ -38,16 +43,19 @@ const Header: FC<Props> = ({ backPath, title, rightAction }) => {
 export default Header
 
 const HeaderStyled = styled.header`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.6rem 1rem;
-  font-size: 0.875rem;
-  border-bottom: 1px solid var(--gray);
+border-bottom: 1px solid var(--gray);
+padding: 0.6rem 0;
 
-  .left-panel {
+.header-content{
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.5rem;
-  }
+    font-size: 0.875rem;
+
+    .left-panel {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+}
 `
