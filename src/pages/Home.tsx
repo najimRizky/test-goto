@@ -1,8 +1,12 @@
+import Header from "../components/organism/Header"
 import ContactList from "../components/templates/ContactList"
 
 const Home = () => {
   return (
-    <ContactList />
+    <>
+      <Header title="Contacts" />
+      <ContactList />
+    </>
   )
 }
 

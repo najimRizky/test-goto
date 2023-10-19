@@ -3,7 +3,6 @@ import Container from "../atoms/Container"
 import FormControl from "../molecules/FormControl"
 import Button from "../atoms/Button"
 import { parseAndSetFormValue } from "../../utils/form-helper"
-import Header from "../organism/Header"
 import { useNavigate } from "react-router-dom"
 import { FlexJustifyBetween } from "../atoms/Flex"
 import Text from "../atoms/Text"
@@ -96,10 +95,6 @@ const ContactForm = () => {
 
   return (
     <>
-      <Header
-        title={"Add Contact"}
-        backButton={true}
-      />
       <MainContent>
         <Container>
           <form onSubmit={handleSubmit}>

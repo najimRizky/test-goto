@@ -7,19 +7,19 @@ import { useNavigate } from "react-router-dom"
 
 interface Props {
   title?: string,
-  backButton?: boolean
+  backPath?: string
   rightAction?: ReactElement
 }
 
-const Header: FC<Props> = ({ backButton, title, rightAction }) => {
+const Header: FC<Props> = ({ backPath, title, rightAction }) => {
   const navigate = useNavigate()
 
   return (
     <HeaderStyled>
       <div className="left-panel">
-        {backButton &&
+        {backPath &&
           <ButtonIcon
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(backPath)}
             size="medium"
             bg="white"
             color="black"

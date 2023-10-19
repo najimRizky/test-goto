@@ -5,7 +5,6 @@ import MainContent from "../atoms/MainContent"
 import Container from "../atoms/Container"
 import { FlexJustifyBetween, FlexJustifyCenter } from "../atoms/Flex"
 import Text from "../atoms/Text"
-import Header from "../organism/Header"
 import { css } from "@emotion/css"
 import Button from "../atoms/Button"
 import PhoneCard from "../organism/PhoneCard"
@@ -107,10 +106,6 @@ const ContactDetail = () => {
 
   return (
     <>
-      <Header
-        backButton
-        title="Contact Detail"
-      />
       <MainContent>
         <Container>
           <Avatar size={"extraLarge"} className={css({ fontSize: "2rem", margin: "0 auto 1rem auto" })}>
