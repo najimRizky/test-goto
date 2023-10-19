@@ -11,6 +11,7 @@ import { css } from "@emotion/css"
 import FloatingActionButton from "../molecules/FloatingActionButton"
 import PlusIcon from "../../icons/PlusIcon"
 import { useNavigate } from "react-router-dom"
+import Spinner from "../atoms/Spinner"
 
 const ContactList: FC = () => {
   const navigate = useNavigate()
@@ -59,7 +60,7 @@ const ContactList: FC = () => {
     return contactList
   }, [data])
 
-  if (loading) return <p>Loading...</p>
+  if (loading) return <Spinner spaceY="2rem" />
   if (error) return <p>Error </p>
 
   return (

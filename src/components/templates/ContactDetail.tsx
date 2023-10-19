@@ -18,6 +18,7 @@ import TrashIcon from "../../icons/TrashIcon"
 import { useState } from "react"
 import FormPhone from "../organism/FormPhone"
 import ModalDelete from "../organism/ModalDelete"
+import Spinner from "../atoms/Spinner"
 
 const ContactDetail = () => {
   const navigate = useNavigate()
@@ -98,7 +99,7 @@ const ContactDetail = () => {
     })
   }
 
-  if (loading) return <p>Loading...</p>
+  if (loading) return <Spinner spaceY="2rem" />
   if (!contact) return <p>Error {":("}</p>
 
   const fullName = `${contact.first_name} ${contact.last_name}`
