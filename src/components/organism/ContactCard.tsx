@@ -1,5 +1,5 @@
-import { FC } from "react"
-import { Contact } from "../../services/contact"
+import { FC, useState } from "react"
+import { Contact, DELETE_CONTACT, GET_CONTACT_LIST } from "../../services/contact"
 import styled from "@emotion/styled"
 import TextMuted from "../atoms/TextMuted"
 import TrippleDotIcon from "../../icons/TrippleDotIcon"
@@ -13,6 +13,8 @@ import { Flex } from "../atoms/Flex"
 import PencilIcon from "../../icons/PencilIcon"
 import { css } from "@emotion/css"
 import TrashIcon from "../../icons/TrashIcon"
+import ModalDelete from "./ModalDelete"
+import { useMutation } from "@apollo/client"
 
 interface Props {
   contact: Contact
@@ -24,57 +26,98 @@ const ContactCard: FC<Props> = ({ contact }) => {
   const phones = contact.phones.map((phone) => phone.number).join(", ")
   const avatarInitial = `${contact.first_name[0] || ""}${contact.last_name[0] || ""}`.toUpperCase()
 
+  const [deleteContact] = useMutation(DELETE_CONTACT, {
+    refetchQueries: [
+      GET_CONTACT_LIST,
+      "GetContactList"
+    ]
+  })
+
+  const [deleteProps, setDeleteProps] = useState<{ onConfirm?: () => void, isOpen: boolean, }>({
+    isOpen: false,
+    onConfirm: undefined
+  })
+
+  const handleDeleteContact = (id: string) => {
+    deleteContact({
+      variables: { id: Number(id) }
+    }).then(() => {
+      setDeleteProps({ onConfirm: undefined, isOpen: false })
+    }).catch(() => {
+      alert("Error")
+    })
+  }
+
+  const handleDelete = (id: string) => {
+    setDeleteProps({
+      isOpen: true,
+      onConfirm: () => handleDeleteContact(id)
+    })
+  }
+
+  const handleCloseDelete = () => {
+    setDeleteProps({ onConfirm: undefined, isOpen: false })
+  }
+
   return (
-    <ContactCardStyled>
-      <NavLink className="content" to={`/${contact.id}`}>
-        <Avatar>
-          {avatarInitial}
-        </Avatar>
-        <div className="info">
-          <h3 className="full-name">
-            {fullName}
-          </h3>
-          <TextMuted className="phones">
-            {phones || "No phone number"}
-          </TextMuted>
-        </div>
-      </NavLink>
-      <Dropdown
-        trigger={
-          <ButtonIcon bg="white" color="black">
-            <TrippleDotIcon />
-          </ButtonIcon>
-        }
-        menu={[
-          {
-            label: <Flex className={css({ gap: "0.5rem !important" })}>
-              <PencilIcon width={18} />Edit Contact
-            </Flex>,
-            onClick: () => { navigate(`/${contact.id}`, { state: { editContact: contact.id } }) }
-          },
-          {
-            label: <Flex className={css({ gap: "0.5rem !important", color: "var(--red-dark)" })}>
-              <TrashIcon width={18} />Delete Contact
-            </Flex>,
-            onClick: () => {
-              alert("Delete")
-            }
-          },
-          ...contact.phones.slice(0, 2).map((phone) => ({
-            label: <Text.P className={css({ textOverflow: "ellipsis", whiteSpace: "nowrap", width: "12rem", overflow: "hidden" })}>
-              Edit {phone.number}
-            </Text.P>,
-            onClick: () => { navigate(`/${contact.id}`, { state: { editPhone: phone.number } }) }
-          })),
-          {
-            label: <Text.P>
-              Add / Edit Other Phones
-            </Text.P>,
-            onClick: () => { navigate(`/${contact.id}`) }
+    <>
+      <ContactCardStyled>
+        <NavLink className="content" to={`/${contact.id}`}>
+          <Avatar>
+            {avatarInitial}
+          </Avatar>
+          <div className="info">
+            <h3 className="full-name">
+              {fullName}
+            </h3>
+            <TextMuted className="phones">
+              {phones || "No phone number"}
+            </TextMuted>
+          </div>
+        </NavLink>
+        <Dropdown
+          trigger={
+            <ButtonIcon bg="white" color="black">
+              <TrippleDotIcon />
+            </ButtonIcon>
           }
-        ]}
+          menu={[
+            {
+              label: <Flex className={css({ gap: "0.5rem !important" })}>
+                <PencilIcon width={18} />Edit Contact
+              </Flex>,
+              onClick: () => { navigate(`/${contact.id}`, { state: { editContact: contact.id } }) }
+            },
+            {
+              label: <Flex className={css({ gap: "0.5rem !important", color: "var(--red-dark)" })}>
+                <TrashIcon width={18} />Delete Contact
+              </Flex>,
+              onClick: () => handleDelete(contact.id)
+            },
+            ...contact.phones.slice(0, 2).map((phone) => ({
+              label: <Text.P className={css({ textOverflow: "ellipsis", whiteSpace: "nowrap", width: "12rem", overflow: "hidden" })}>
+                Edit {phone.number}
+              </Text.P>,
+              onClick: () => { navigate(`/${contact.id}`, { state: { editPhone: phone.number } }) }
+            })),
+            {
+              label: <Text.P>
+                Add / Edit Other Phones
+              </Text.P>,
+              onClick: () => { navigate(`/${contact.id}`) }
+            }
+          ]}
+        />
+      </ContactCardStyled>
+
+      {/* Modal Delete */}
+      <ModalDelete
+        isOpen={deleteProps?.isOpen}
+        onClose={() => handleCloseDelete()}
+        message="Are you sure want to delete this contact?"
+        onConfirm={deleteProps?.onConfirm}
       />
-    </ContactCardStyled>
+    </>
   )
 }
 
