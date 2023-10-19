@@ -13,6 +13,7 @@ import PlusIcon from "../../icons/PlusIcon"
 import { useNavigate } from "react-router-dom"
 import Spinner from "../atoms/Spinner"
 import ErrorBox from "../organism/ErrorBox"
+import Container from "../atoms/Container"
 
 const ContactList: FC = () => {
   const navigate = useNavigate()
@@ -41,7 +42,7 @@ const ContactList: FC = () => {
       return (
         <Fragment key={contact.id}>
           {showInitial &&
-            <div
+            <Container
               className={css({
                 padding: "0.25rem 0 0.5rem 1.9rem",
                 borderTop: "1px solid transparent",
@@ -52,7 +53,7 @@ const ContactList: FC = () => {
               })}
             >
               {initial}
-            </div>}
+            </Container>}
           <ContactCard contact={contact} />
         </Fragment>
       )

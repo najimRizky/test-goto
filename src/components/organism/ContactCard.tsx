@@ -7,6 +7,7 @@ import Dropdown from "../molecules/Dropdown"
 import ButtonIcon from "../atoms/ButtonIcon"
 import Avatar from "../atoms/Avatar"
 import { NavLink, useNavigate } from "react-router-dom"
+import Container from "../atoms/Container"
 
 interface Props {
   contact: Contact
@@ -43,7 +44,7 @@ const ContactCard: FC<Props> = ({ contact }) => {
           {
             label: "Edit",
             onClick: () => {
-              navigate(`/form?id=${contact.id}`)
+              navigate(`/${contact.id}`)
             }
           },
           {
@@ -60,7 +61,7 @@ const ContactCard: FC<Props> = ({ contact }) => {
 
 export default ContactCard
 
-const ContactCardStyled = styled.div`
+const ContactCardStyled = styled(Container)`
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--gray-light);
   display: flex; 
