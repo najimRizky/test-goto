@@ -38,9 +38,11 @@ const initialForm: Form = {
 const ContactForm = () => {
   const navigate = useNavigate()
 
+  // Get id from url
   const [searchParams] = useSearchParams()
   const id = searchParams.get("id")
 
+  // Queries and Mutations
   const [addContactWithPhones, { loading: loadingAdd }] = useMutation(ADD_CONTACT_WITH_PHONES)
   const [getContactDetail, { data: detailContact }] = useLazyQuery(GET_CONTACT_DETAIL, { fetchPolicy: "no-cache" })
   const [editContact] = useMutation(EDIT_CONTACT)
@@ -49,20 +51,45 @@ const ContactForm = () => {
   const [deletePhone] = useMutation(DELETE_PHONE)
   const [editPhone] = useMutation(EDIT_PHONE)
 
+  // States
   const [form, setForm] = useState<Form>(deepCopy(initialForm))
   const [editMode, setEditMode] = useState<any>()
   const [deleteProps, setDeleteProps] = useState<{ isOpen?: boolean; message?: string; onConfirm?: () => void }>()
 
+  // Fetch detail on mount if id is present
   useEffect(() => {
     if (id) {
       fetchDetail()
     }
   }, [id])
 
+  // Toggle edit mode
   const toggleEditMode = (type: string, status: boolean) => {
     setEditMode({ ...editMode, [type]: status })
   }
 
+  // Handle cancel edit
+  const handleCancelEdit = (type: string, index: number = 0) => {
+    const newForm = deepCopy(form)
+    if (type.includes("phone")) {
+      if (detailContact?.contact.phones[index]) {
+        newForm.phones[index].number = detailContact?.contact.phones[index].number
+      } else {
+        newForm.phones.splice(index, 1)
+      }
+    }
+
+    if (type === "contact") {
+      const { first_name, last_name } = detailContact?.contact || { first_name: "", last_name: "" }
+      newForm.first_name = first_name
+      newForm.last_name = last_name
+    }
+
+    setForm(newForm)
+    toggleEditMode(type, false)
+  }
+
+  // Fetch contact detail
   const fetchDetail = () => {
     getContactDetail({
       variables: { id: Number(id) }
@@ -83,6 +110,7 @@ const ContactForm = () => {
     })
   }
 
+  // Handle input change
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -90,6 +118,7 @@ const ContactForm = () => {
     setForm(updatedForm);
   }
 
+  // Handle submit all (add contact with phones)
   const handleSubmitAll = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
@@ -102,6 +131,7 @@ const ContactForm = () => {
     })
   }
 
+  // Handle add phone
   const handleAddPhone = () => {
     const newForm = deepCopy(form)
     newForm.phones.push({ number: "" })
@@ -112,6 +142,7 @@ const ContactForm = () => {
     }
   }
 
+  // Handle delete phone
   const handleSubmitDeletePhone = (index: number) => {
     if (!id) {
       const newForm = deepCopy(form)
@@ -133,6 +164,7 @@ const ContactForm = () => {
     }
   }
 
+  // Handle submit add/edit phone
   const handleSubmitPhone = (index: number) => {
     if (detailContact?.contact.phones[index]) {
       editPhone({
@@ -164,26 +196,7 @@ const ContactForm = () => {
     }
   }
 
-  const handleCancelEdit = (type: string, index: number = 0) => {
-    const newForm = deepCopy(form)
-    if (type.includes("phone")) {
-      if (detailContact?.contact.phones[index]) {
-        newForm.phones[index].number = detailContact?.contact.phones[index].number
-      } else {
-        newForm.phones.splice(index, 1)
-      }
-    }
-
-    if (type === "contact") {
-      const { first_name, last_name } = detailContact?.contact || { first_name: "", last_name: "" }
-      newForm.first_name = first_name
-      newForm.last_name = last_name
-    }
-
-    setForm(newForm)
-    toggleEditMode(type, false)
-  }
-
+  // Handle submit edit contact (first name, last name)
   const handleSubmitEditContact = () => {
     editContact({
       variables: {
@@ -201,6 +214,7 @@ const ContactForm = () => {
     })
   }
 
+  // Handle submit delete contact (Whole contact)
   const handleSubmitDeleteContact = () => {
     deleteContact({
       variables: {
@@ -213,6 +227,7 @@ const ContactForm = () => {
     })
   }
 
+  // Handle submit delete (Show modal confirmation)
   const handleSubmitDelete = (type: string, index: number = 0) => {
     if (type === "contact") {
       setDeleteProps({
