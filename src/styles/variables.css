@@ -18,4 +18,12 @@
   --red: #FF4D4D;
   --red-dark: #FF0000;
   --red-light: #FFBABA;
+
+  --yellow: #fed95f;
+  --yellow-dark: #FFC800;
+  --yellow-light: #FFF0BA;
+
+  --green: #5eff5e;
+  --green-dark: #00FF00;
+  --green-light: #BAFFBA;
 }

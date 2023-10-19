@@ -19,3 +19,7 @@ export const FlexJustifyCenter = styled(Flex)`
 export const FlexJustifyBetween = styled(Flex)`
   justify-content: space-between;
 `
+
+export const FlexJustifyEnd = styled(Flex)`
+  justify-content: flex-end;
+`

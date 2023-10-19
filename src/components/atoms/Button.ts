@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
 
 interface Props {
-  bg?: "primary" | "transparent" | "white" | "black" | "red" | "gray" | "gray-light";
+  bg?: "primary" | "transparent" | "white" | "black" | "red" | "gray" | "gray-light" | "yellow" | "green";
   width?: string | number;
   height?: string | number;
-  color?: "primary" | "black" | "white" | "red" | "gray";
+  color?: "primary" | "black" | "white" | "red" | "gray" | "gray-light" | "yellow" | "green";
 }
 
 const Button = styled.button<Props>`
@@ -19,6 +19,11 @@ const Button = styled.button<Props>`
   width: ${({ width }) => width ? width : "auto"};
   transition: var(--transition);
   padding: 0 1rem;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
   @media (hover: hover) {
     &:hover {

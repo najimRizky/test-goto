@@ -3,15 +3,22 @@ import { GET_CONTACT_DETAIL } from "../../services/contact"
 import { useParams } from "react-router-dom"
 import MainContent from "../atoms/MainContent"
 import Container from "../atoms/Container"
-import { FlexJustifyBetween } from "../atoms/Flex"
+import { FlexJustifyBetween, FlexJustifyCenter } from "../atoms/Flex"
 import Text from "../atoms/Text"
 import Header from "../organism/Header"
 import { css } from "@emotion/css"
 import Button from "../atoms/Button"
 import PhoneCard from "../organism/PhoneCard"
 import Avatar from "../atoms/Avatar"
+import Modal from "../molecules/Modal"
+import useModal from "../../hooks/useModal"
+import FormEditContact from "../organism/FormEditContact"
+import ButtonIcon from "../atoms/ButtonIcon"
+import PencilIcon from "../../icons/PencilIcon"
+import TrashIcon from "../../icons/TrashIcon"
 
 const ContactDetail = () => {
+  const { handleClose: handleCloseEdit, handleOpen: handleOpenEdit, isOpen: isOpenedit } = useModal()
   const params = useParams()
   const id = Number(params.id || 0)
 
@@ -35,12 +42,20 @@ const ContactDetail = () => {
       />
       <MainContent>
         <Container>
-          <Avatar size={"extraLarge"} className={css({fontSize: "2rem", margin: "0 auto 1rem auto"})}>
+          <Avatar size={"extraLarge"} className={css({ fontSize: "2rem", margin: "0 auto 1rem auto" })}>
             {initial}
           </Avatar>
           <Text.H1 className={css({ textAlign: "center" })}>
             {fullName}
           </Text.H1>
+          <FlexJustifyCenter className={css({ marginTop: "1rem" })}>
+            <ButtonIcon onClick={handleOpenEdit} bg="yellow" color="black" size="small" >
+              <PencilIcon width={18} />
+            </ButtonIcon>
+            <ButtonIcon onClick={handleOpenEdit} bg="red" color="white" size="small" >
+              <TrashIcon width={18} />
+            </ButtonIcon>
+          </FlexJustifyCenter>
           <div className={css({ marginTop: "2rem" })}>
             <FlexJustifyBetween>
               <Text.H2>
@@ -62,6 +77,17 @@ const ContactDetail = () => {
           </div>
         </Container>
       </MainContent>
+
+      <Modal isOpen={isOpenedit} onClose={handleCloseEdit} title="Edit Contact">
+        <FormEditContact
+          contactId={id}
+          data={{
+            first_name: contact.first_name,
+            last_name: contact.last_name
+          }}
+          onClose={handleCloseEdit}
+        />
+      </Modal>
     </>
   )
 }
