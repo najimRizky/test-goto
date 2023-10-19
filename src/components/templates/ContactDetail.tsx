@@ -19,6 +19,7 @@ import { useState } from "react"
 import FormPhone from "../organism/FormPhone"
 import ModalDelete from "../organism/ModalDelete"
 import Spinner from "../atoms/Spinner"
+import ErrorBox from "../organism/ErrorBox"
 
 const ContactDetail = () => {
   const navigate = useNavigate()
@@ -100,7 +101,7 @@ const ContactDetail = () => {
   }
 
   if (loading) return <Spinner spaceY="2rem" />
-  if (!contact) return <p>Error {":("}</p>
+  if (!contact) return <ErrorBox />
 
   const fullName = `${contact.first_name} ${contact.last_name}`
   const initial = `${contact.first_name[0] || ""}${contact.last_name[0] || ""}`.toUpperCase()

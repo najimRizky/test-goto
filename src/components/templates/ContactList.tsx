@@ -12,6 +12,7 @@ import FloatingActionButton from "../molecules/FloatingActionButton"
 import PlusIcon from "../../icons/PlusIcon"
 import { useNavigate } from "react-router-dom"
 import Spinner from "../atoms/Spinner"
+import ErrorBox from "../organism/ErrorBox"
 
 const ContactList: FC = () => {
   const navigate = useNavigate()
@@ -61,7 +62,7 @@ const ContactList: FC = () => {
   }, [data])
 
   if (loading) return <Spinner spaceY="2rem" />
-  if (error) return <p>Error </p>
+  if (error) return <ErrorBox />
 
   return (
     <>
