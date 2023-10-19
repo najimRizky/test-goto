@@ -17,6 +17,11 @@ const Input = styled.input`
     }
   }
 
+  &:disabled {
+    border-color: var(--gray-light);
+    background-color: transparent;
+  }
+
   &.error {
     border-color: var(--red);
     color: var(--red);

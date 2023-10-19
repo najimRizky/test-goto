@@ -12,9 +12,10 @@ interface Props {
   fieldName?: string
   required?: boolean
   placeholder?: string
+  disabled?: boolean
 }
 
-const FormControl: FC<Props> = ({ label, type, value, onChange, error, fieldName, required, placeholder }) => {
+const FormControl: FC<Props> = ({ label, type, value, onChange, error, fieldName, required, placeholder, disabled = false }) => {
   return (
     <FormControlStyled>
       <Label
@@ -32,6 +33,7 @@ const FormControl: FC<Props> = ({ label, type, value, onChange, error, fieldName
         required={required}
         className={error ? "error" : ""}
         placeholder={placeholder}
+        disabled={disabled}
       />
       {error && <small className="error">{error}</small>}
     </FormControlStyled>

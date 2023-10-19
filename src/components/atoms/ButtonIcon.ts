@@ -19,6 +19,7 @@ const ButtonIcon = styled(Button)<Props>`
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-shrink: 0;
 `;
 
 export default ButtonIcon;
