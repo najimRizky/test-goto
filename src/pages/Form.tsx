@@ -1,8 +1,8 @@
-import ContactForm from "../components/templates/ContactForm"
+import AddContactForm from "../components/templates/AddContactForm"
 
 const Form = () => {
   return (
-    <ContactForm />
+    <AddContactForm />
   )
 }
 

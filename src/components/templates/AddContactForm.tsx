@@ -4,7 +4,7 @@ import FormControl from "../molecules/FormControl"
 import Button from "../atoms/Button"
 import { parseAndSetFormValue } from "../../utils/form-helper"
 import Header from "../organism/Header"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { FlexJustifyBetween } from "../atoms/Flex"
 import Text from "../atoms/Text"
 import { deepCopy } from "../../utils/object-helper"
@@ -15,35 +15,6 @@ import MainContent from "../atoms/MainContent"
 import { css } from "@emotion/css"
 import { useMutation } from "@apollo/client"
 import { ADD_CONTACT_WITH_PHONES, GET_CONTACT_LIST } from "../../services/contact"
-
-// interface ValidationProps {
-//   required?: boolean
-//   minLength?: number
-//   maxLength?: number
-//   pattern?: RegExp
-//   array?: boolean
-// }
-
-// export interface ValidationSchema {
-//   [key: string]: ValidationProps | ValidationSchema | ValidationSchema[]
-// }
-
-// const validationSchema: ValidationSchema = {
-//   first_name: {
-//     required: true,
-//     minLength: 3,
-//   },
-//   last_name: {
-//     required: false,
-//     minLength: 3,
-//   },
-//   phones: [{
-//     number: {
-//       required: true,
-//       minLength: 3,
-//     }
-//   }]
-// }
 
 interface Form {
   first_name: string
@@ -62,7 +33,7 @@ const initialForm: Form = {
 }
 
 const ContactForm = () => {
-  const [addContactWithPhones, { loading, error, data }] = useMutation(ADD_CONTACT_WITH_PHONES, {
+  const [addContactWithPhones, { loading }] = useMutation(ADD_CONTACT_WITH_PHONES, {
     refetchQueries: [
       GET_CONTACT_LIST,
       "GetContactList"
@@ -70,10 +41,6 @@ const ContactForm = () => {
   })
 
   const navigate = useNavigate()
-
-  const [searchParams] = useSearchParams()
-  const id = searchParams.get("id")
-
   const [form, setForm] = useState<Form>(deepCopy(initialForm))
   const [errors, setErrors] = useState(deepCopy(initialForm))
 
@@ -130,7 +97,7 @@ const ContactForm = () => {
   return (
     <>
       <Header
-        title={id ? "Edit Contact" : "Add Contact"}
+        title={"Add Contact"}
         backButton={true}
       />
       <MainContent>
@@ -189,7 +156,7 @@ const ContactForm = () => {
             )) : (
               <TextMuted>No phone number</TextMuted>
             )}
-            <Button className={css({ marginTop: "1rem" })} type="submit" width={"100%"}>Submit</Button>
+            <Button disabled={loading} className={css({ marginTop: "1rem" })} type="submit" width={"100%"}>Submit</Button>
           </form>
         </Container>
       </MainContent>
