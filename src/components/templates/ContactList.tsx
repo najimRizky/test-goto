@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom"
 import Spinner from "../atoms/Spinner"
 import ErrorBox from "../organism/ErrorBox"
 import Container from "../atoms/Container"
+import Text from "../atoms/Text"
 
 const ContactList: FC = () => {
   const navigate = useNavigate()
@@ -30,6 +31,8 @@ const ContactList: FC = () => {
   })
 
   const renderContactList = useMemo(() => {
+    if (!data?.contacts || data?.contacts?.length === 0) return <Text.P className={css({textAlign: "center", paddingTop: "8rem"})}>No Contact Found</Text.P>
+
     let initial = ""
     const contactList = data?.contacts.map((contact) => {
       const firstLetter = contact.first_name[0].toUpperCase()
@@ -67,7 +70,7 @@ const ContactList: FC = () => {
 
   return (
     <>
-      <main className={css({marginBottom: "5rem"})}>
+      <main className={css({ marginBottom: "5rem", minHeight: "80vh" })}>
         {renderContactList}
       </main>
       <FloatingActionButton
