@@ -22,6 +22,11 @@ export interface Contact {
 
 interface Data {
   contacts: Contact[];
+  metadata: {
+    aggregate: {
+      count: number;
+    }
+  }
 }
 
 export const GET_CONTACT_LIST: TypedDocumentNode<Data, QueryVariables> = gql`

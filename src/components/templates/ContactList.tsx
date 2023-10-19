@@ -10,18 +10,24 @@ import { isAlphaNumeric } from "../../utils/string-helper"
 import { css } from "@emotion/css"
 import FloatingActionButton from "../molecules/FloatingActionButton"
 import PlusIcon from "../../icons/PlusIcon"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import Spinner from "../atoms/Spinner"
 import ErrorBox from "../organism/ErrorBox"
 import Container from "../atoms/Container"
 import Text from "../atoms/Text"
+import Pagination from "../organism/Pagination"
+
+const per_page = 1
 
 const ContactList: FC = () => {
   const navigate = useNavigate()
+  const [searchParam] = useSearchParams()
+  const page = parseInt(searchParam.get("page") || "1")
 
   const { loading, error, data } = useQuery(GET_CONTACT_LIST, {
     variables: {
-      limit: 20,
+      limit: per_page,
+      offset: (page - 1) * per_page,
       order_by: {
         first_name: "asc",
         last_name: "asc"
@@ -30,8 +36,11 @@ const ContactList: FC = () => {
     fetchPolicy: "network-only"
   })
 
+  const totalData = data?.metadata?.aggregate.count || 0
+  const totalPage = Math.ceil(totalData / per_page)
+
   const renderContactList = useMemo(() => {
-    if (!data?.contacts || data?.contacts?.length === 0) return <Text.P className={css({textAlign: "center", paddingTop: "8rem"})}>No Contact Found</Text.P>
+    if (!data?.contacts || data?.contacts?.length === 0) return <Text.P className={css({ textAlign: "center", paddingTop: "8rem" })}>No Contact Found</Text.P>
 
     let initial = ""
     const contactList = data?.contacts.map((contact) => {
@@ -70,9 +79,11 @@ const ContactList: FC = () => {
 
   return (
     <>
-      <main className={css({ marginBottom: "5rem", minHeight: "80vh" })}>
+      <main className={css({ marginBottom: "2rem", minHeight: "80vh" })}>
+        <div className={css({})}></div>
         {renderContactList}
       </main>
+      <Pagination page={page} totalPage={totalPage} />
       <FloatingActionButton
         onClick={() => navigate("/form")}
         isIcon={true}
@@ -80,7 +91,6 @@ const ContactList: FC = () => {
       >
         <PlusIcon width={42} />
       </FloatingActionButton>
-      {/* <button onClick={handleSubmit}>Add Contact</button> */}
     </>
   )
 }
