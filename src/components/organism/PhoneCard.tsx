@@ -8,12 +8,11 @@ import Text from "../atoms/Text"
 
 interface Props {
   number: string
-  contactId: string
+  onEdit: () => void
+  onDelete: () => void
 }
 
-const PhoneCard: FC<Props> = ({ contactId, number }) => {
-  console.log(contactId)
-
+const PhoneCard: FC<Props> = ({ number, onDelete, onEdit }) => {
   return (
     <PhoneCardStyled>
       <div className="content">
@@ -28,14 +27,10 @@ const PhoneCard: FC<Props> = ({ contactId, number }) => {
         <Dropdown
           menu={[{
             label: "Edit",
-            onClick: () => {
-              console.log("Edit")
-            }
+            onClick: onEdit
           }, {
             label: "Delete",
-            onClick: () => {
-              console.log("Delete")
-            }
+            onClick: onDelete
           }]}
           trigger={
             <ButtonIcon bg="white" color="black" size="small">

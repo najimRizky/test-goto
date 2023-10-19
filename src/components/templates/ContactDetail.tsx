@@ -16,16 +16,30 @@ import FormEditContact from "../organism/FormEditContact"
 import ButtonIcon from "../atoms/ButtonIcon"
 import PencilIcon from "../../icons/PencilIcon"
 import TrashIcon from "../../icons/TrashIcon"
+import { useState } from "react"
+import FormPhone from "../organism/FormPhone"
 
 const ContactDetail = () => {
   const { handleClose: handleCloseEdit, handleOpen: handleOpenEdit, isOpen: isOpenedit } = useModal()
+  const { handleClose: handleClosePhone, handleOpen: handleOpenPhone, isOpen: isOpenPhone } = useModal()
+
+  const [selectedPhone, setSelectedPhone] = useState<string>()
+
+  const handleFormPhone = (number: string = "") => {
+    if (number) setSelectedPhone(number)
+
+    handleOpenPhone()
+  }
+
+  const handleCloseFormPhone = () => {
+    setSelectedPhone(undefined)
+    handleClosePhone()
+  }
+
   const params = useParams()
   const id = Number(params.id || 0)
 
-  const { data, loading } = useQuery(GET_CONTACT_DETAIL, {
-    variables: { id }
-  })
-
+  const { data, loading } = useQuery(GET_CONTACT_DETAIL, { variables: { id } })
   const { contact } = data || { contact: null }
 
   if (loading) return <p>Loading...</p>
@@ -61,7 +75,7 @@ const ContactDetail = () => {
               <Text.H2>
                 Phones
               </Text.H2>
-              <Button>
+              <Button onClick={() => handleFormPhone()}>
                 + Add Phone
               </Button>
             </FlexJustifyBetween>
@@ -70,7 +84,8 @@ const ContactDetail = () => {
                 <PhoneCard
                   key={index}
                   number={phone.number}
-                  contactId={contact.id}
+                  onEdit={() => handleFormPhone(phone.number)}
+                  onDelete={() => console.log("delete")}
                 />
               ))}
             </div>
@@ -78,6 +93,7 @@ const ContactDetail = () => {
         </Container>
       </MainContent>
 
+      {/* Form Edit Contact*/}
       <Modal isOpen={isOpenedit} onClose={handleCloseEdit} title="Edit Contact">
         <FormEditContact
           contactId={id}
@@ -86,6 +102,15 @@ const ContactDetail = () => {
             last_name: contact.last_name
           }}
           onClose={handleCloseEdit}
+        />
+      </Modal>
+
+      {/* Form Add/Edit Phone */}
+      <Modal isOpen={isOpenPhone} onClose={handleCloseFormPhone} title={selectedPhone ? "Edit Phone" : "Add Phone"}>
+        <FormPhone
+          contactId={id}
+          data={selectedPhone}
+          onClose={handleCloseFormPhone}
         />
       </Modal>
     </>
