@@ -60,8 +60,9 @@ const ContactForm = () => {
     if (isValid) {
       addContactWithPhones({
         variables: form
-      }).then(() => {
-        navigate("/")
+      }).then((data) => {
+        const id = data.data?.insert_contact?.returning[0].id
+        navigate(`/${id}`)
       }).catch(() => {
         alert("Error")
       })
