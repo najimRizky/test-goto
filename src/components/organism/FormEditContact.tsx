@@ -1,9 +1,8 @@
 import { FC, useState } from "react"
 import FormControl from "../molecules/FormControl"
-import Button from "../atoms/Button"
 import { useMutation } from "@apollo/client"
 import { GET_CONTACT_DETAIL, UPDATE_CONTACT } from "../../services/contact"
-import {FlexJustifyEnd } from "../atoms/Flex"
+import ButtonActionform from "../molecules/ButtonActionform"
 
 interface Props {
   onClose: () => void
@@ -71,15 +70,10 @@ const FormEditContact: FC<Props> = ({ onClose, data, contactId }) => {
         placeholder="Enter last name"
       />
 
-      <FlexJustifyEnd>
-        <Button disabled={loading} type="button" bg="red" color="white" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button disabled={loading} type="submit" bg="green" color="black">
-          Save
-        </Button>
-      </FlexJustifyEnd>
-
+      <ButtonActionform
+        loading={loading}
+        onCancel={onClose}
+      />
     </form>
   )
 }
