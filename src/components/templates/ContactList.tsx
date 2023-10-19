@@ -44,7 +44,7 @@ const ContactList: FC = () => {
           {showInitial &&
             <Container
               className={css({
-                padding: "0.25rem 0 0.5rem 1.9rem",
+                padding: "0.25rem 0 0.5rem 1.9rem !important",
                 borderTop: "1px solid transparent",
                 borderBottom: "1px solid var(--gray-light)",
                 fontWeight: 600,
