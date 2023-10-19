@@ -50,22 +50,28 @@ const ContactCard: FC<Props> = ({ contact }) => {
             label: <Flex className={css({ gap: "0.5rem !important" })}>
               <PencilIcon width={18} />Edit Contact
             </Flex>,
-            onClick: () => { navigate(`/${contact.id}?editContact=true`) }
+            onClick: () => { navigate(`/${contact.id}`, { state: { editContact: contact.id } }) }
           },
           {
-            label: <Flex className={css({ gap: "0.5rem !important", color:"var(--red-dark)" })}>
+            label: <Flex className={css({ gap: "0.5rem !important", color: "var(--red-dark)" })}>
               <TrashIcon width={18} />Delete Contact
             </Flex>,
             onClick: () => {
               alert("Delete")
             }
           },
-          ...contact.phones.slice(0,2).map((phone, index) => ({
-            label: <Text.P className={css({textOverflow: "ellipsis", whiteSpace: "nowrap", width: "9rem", overflow: "hidden"})}>
+          ...contact.phones.slice(0, 2).map((phone) => ({
+            label: <Text.P className={css({ textOverflow: "ellipsis", whiteSpace: "nowrap", width: "12rem", overflow: "hidden" })}>
               Edit {phone.number}
             </Text.P>,
-            onClick: () => { navigate(`/${contact.id}?editPhone=${index}`) }
-          }))
+            onClick: () => { navigate(`/${contact.id}`, { state: { editPhone: phone.number } }) }
+          })),
+          {
+            label: <Text.P>
+              Add / Edit Other Phones
+            </Text.P>,
+            onClick: () => { navigate(`/${contact.id}`) }
+          }
         ]}
       />
     </ContactCardStyled>

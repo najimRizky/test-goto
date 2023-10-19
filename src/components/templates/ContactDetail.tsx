@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client"
 import { DELETE_CONTACT, DELETE_PHONE, GET_CONTACT_DETAIL } from "../../services/contact"
-import { useNavigate, useParams } from "react-router-dom"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
 import MainContent from "../atoms/MainContent"
 import Container from "../atoms/Container"
 import { FlexJustifyBetween, FlexJustifyCenter } from "../atoms/Flex"
@@ -15,7 +15,7 @@ import FormEditContact from "../organism/FormEditContact"
 import ButtonIcon from "../atoms/ButtonIcon"
 import PencilIcon from "../../icons/PencilIcon"
 import TrashIcon from "../../icons/TrashIcon"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import FormPhone from "../organism/FormPhone"
 import ModalDelete from "../organism/ModalDelete"
 import Spinner from "../atoms/Spinner"
@@ -23,8 +23,8 @@ import ErrorBox from "../organism/ErrorBox"
 
 const ContactDetail = () => {
   const navigate = useNavigate()
-  const params = useParams()
-  const id = Number(params.id || 0)
+  const id = Number(useParams().id || 0)
+  const { editContact, editPhone } = useLocation().state || { editContact: undefined, editPhone: undefined }
 
   const { handleClose: handleCloseEdit, handleOpen: handleOpenEdit, isOpen: isOpenedit } = useModal()
   const { handleClose: handleClosePhone, handleOpen: handleOpenPhone, isOpen: isOpenPhone } = useModal()
@@ -99,6 +99,11 @@ const ContactDetail = () => {
       alert("error")
     })
   }
+
+  useEffect(() => {
+    if (editContact) handleOpenEdit()
+    if (editPhone) handleFormPhone(editPhone)
+  }, [editContact, editPhone])
 
   if (loading) return <Spinner spaceY="2rem" />
   if (!contact) return <ErrorBox />

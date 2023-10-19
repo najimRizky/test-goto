@@ -3,6 +3,7 @@ import FormControl from "../molecules/FormControl"
 import ButtonActionform from "../molecules/ButtonActionform"
 import { useMutation } from "@apollo/client"
 import { ADD_PHONE, EDIT_PHONE, GET_CONTACT_DETAIL } from "../../services/contact"
+import { useNavigate } from "react-router-dom"
 
 interface Props {
   onClose: () => void
@@ -11,6 +12,7 @@ interface Props {
 }
 
 const FormAddEditPhone: FC<Props> = ({ onClose, data, contactId }) => {
+  const navigate = useNavigate()
   const [addPhone, { loading: loadingAddPhone }] = useMutation(ADD_PHONE, {
     refetchQueries: [
       GET_CONTACT_DETAIL,
@@ -66,6 +68,7 @@ const FormAddEditPhone: FC<Props> = ({ onClose, data, contactId }) => {
       }
     }).then(() => {
       onClose()
+      navigate(`/${contactId}`, { state: {}, replace: true })
     }).catch(() => {
       alert("Error")
     })
