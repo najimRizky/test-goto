@@ -65,7 +65,7 @@ const DropdownStyled = styled.div<DropdownStyledProps>`
     right: ${({ position }) => position?.endsWith("right") ? "0" : "auto"};
     bottom: ${({ position }) => position?.startsWith("top") ? "100%" : "auto"};
     left: ${({ position }) => position?.endsWith("right") ? "auto" : "0"};
-    min-width: 8rem;
+    min-width: 11rem;
     background-color: white;
     border-radius: var(--radius);
     box-shadow: var(--shadow);
