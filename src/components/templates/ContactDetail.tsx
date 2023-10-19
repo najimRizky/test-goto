@@ -22,12 +22,14 @@ import ModalDelete from "../organism/ModalDelete"
 
 const ContactDetail = () => {
   const navigate = useNavigate()
+  const params = useParams()
+  const id = Number(params.id || 0)
 
   const { handleClose: handleCloseEdit, handleOpen: handleOpenEdit, isOpen: isOpenedit } = useModal()
   const { handleClose: handleClosePhone, handleOpen: handleOpenPhone, isOpen: isOpenPhone } = useModal()
 
-  const [deleteContact] = useMutation(DELETE_CONTACT)
   const [deletePhone] = useMutation(DELETE_NUMBER)
+  const [deleteContact] = useMutation(DELETE_CONTACT)
 
   const [selectedPhone, setSelectedPhone] = useState<string>()
   const [deleteProps, setDeleteProps] = useState<{
@@ -35,9 +37,6 @@ const ContactDetail = () => {
     message: string,
     isOpen: boolean,
   }>()
-
-  const params = useParams()
-  const id = Number(params.id || 0)
 
   const { data, loading, refetch } = useQuery(GET_CONTACT_DETAIL, { variables: { id } })
   const { contact } = data || { contact: null }
