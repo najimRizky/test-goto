@@ -7,7 +7,7 @@ const ModalSize = {
   small: "24rem",
   medium: "32rem",
   large: "40rem",
-  full: "100%"
+  full: "95%"
 }
 
 interface Props {
@@ -106,7 +106,7 @@ const ModalStyled = styled.div<ModalStyledProps>`
     left: 50%;
     transform: translate(-50%, -50%);
     max-width: ${({ size }) => size ? ModalSize[size] : ModalSize.medium};
-    width: 100%;
+    width: 95%;
     background-color: white;
     border-radius: var(--radius);
     box-shadow: var(--shadow);
