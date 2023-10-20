@@ -61,7 +61,7 @@ const ContactCard: FC<Props> = ({ contact }) => {
   return (
     <>
       <ContactCardStyled>
-        <NavLink className="content" to={`/${contact.id}`}>
+        <NavLink className="content" to={`/form?id=${contact.id}`}>
           <Avatar>
             {avatarInitial}
           </Avatar>
