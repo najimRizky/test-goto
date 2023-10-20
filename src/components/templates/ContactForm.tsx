@@ -294,12 +294,14 @@ const ContactForm = () => {
     }
   }
 
+  const initialAvatar = `${detailContact?.contact?.first_name[0] || ""} ${detailContact?.contact?.last_name[0] || ""}`.toUpperCase()
+
   return (
     <>
       <MainContent>
         {id && (
           <Avatar size="extraLarge" className={css({ margin: "0 auto 3rem auto", fontSize: "1.5rem" })} >
-            {detailContact?.contact?.first_name[0]}{detailContact?.contact?.last_name[0]}
+            {initialAvatar}
           </Avatar>
         )}
 
