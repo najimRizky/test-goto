@@ -23,6 +23,7 @@ const ContactList: FC = () => {
   const navigate = useNavigate()
   const [searchParam] = useSearchParams()
   const page = parseInt(searchParam.get("page") || "1")
+  const search = searchParam.get("search") || ""
 
   const { loading, error, data } = useQuery(GET_CONTACT_LIST, {
     variables: {
@@ -31,6 +32,28 @@ const ContactList: FC = () => {
       order_by: {
         first_name: "asc",
         last_name: "asc"
+      },
+      where: {
+        "_or": [
+          {
+            first_name: {
+              "_iregex": `(${search.split(" ").join("|")}|${search})`
+            }
+          },
+          
+          {
+            last_name: {
+              "_iregex": `(${search.split(" ").join("|")}|${search})`
+            }
+          },
+          {
+            "phones": {
+              "number": {
+                "_ilike": `%${search}%`
+              }
+            }
+          }
+        ]
       }
     },
     fetchPolicy: "network-only"
@@ -79,11 +102,12 @@ const ContactList: FC = () => {
 
   return (
     <>
-      <main className={css({ marginBottom: "2rem", minHeight: "80vh" })}>
-        <div className={css({})}></div>
+      <main className={css({ marginBottom: "2rem", minHeight: "70vh" })}>
         {renderContactList}
       </main>
-      <Pagination page={page} totalPage={totalPage} />
+      {totalData > 0 && (
+        <Pagination page={page} totalPage={totalPage} />
+      )}
       <FloatingActionButton
         onClick={() => navigate("/form")}
         isIcon={true}

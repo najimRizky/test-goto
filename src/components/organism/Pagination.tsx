@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { FC } from "react"
 import styled from "@emotion/styled";
 import { css } from "@emotion/css";
@@ -13,16 +13,18 @@ interface Props {
 }
 
 const Pagination: FC<Props> = ({ page, totalPage }) => {
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const handlePrevPage = () => {
     if (page === 1) return;
-    navigate(`/?page=${page - 1}`);
+    searchParams.set("page", (page - 1).toString());
+    setSearchParams(searchParams);
   };
 
   const handleNextPage = () => {
     if (page === totalPage) return;
-    navigate(`/?page=${page + 1}`);
+    searchParams.set("page", (page + 1).toString());
+    setSearchParams(searchParams);
   };
 
   return (

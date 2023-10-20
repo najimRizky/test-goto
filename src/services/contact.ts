@@ -52,11 +52,11 @@ query GetContactList (
       number
     }
   }
-  metadata: contact_aggregate {
-    aggregate{
+  metadata: contact_aggregate (where: $where) {
+    aggregate {
       count
     }
-  }
+	}
 }`
 
 interface AddContactTypeWithPhonesType {
