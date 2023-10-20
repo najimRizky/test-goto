@@ -18,6 +18,7 @@ import PencilIcon from "../../icons/PencilIcon"
 import CheckIcon from "../../icons/CheckIcon"
 import CloseIcon from "../../icons/CloseIcon"
 import ModalDelete from "../organism/ModalDelete"
+import Avatar from "../atoms/Avatar"
 
 interface Form {
   first_name: string
@@ -72,8 +73,8 @@ const ContactForm = () => {
   const handleCancelEdit = (type: string, index: number = 0) => {
     const newForm = deepCopy(form)
     if (type.includes("phone")) {
-      if (detailContact?.contact.phones[index]) {
-        newForm.phones[index].number = detailContact?.contact.phones[index].number
+      if (detailContact?.contact?.phones[index]) {
+        newForm.phones[index].number = detailContact?.contact?.phones[index].number
       } else {
         newForm.phones.splice(index, 1)
       }
@@ -166,12 +167,12 @@ const ContactForm = () => {
 
   // Handle submit add/edit phone
   const handleSubmitPhone = (index: number) => {
-    if (detailContact?.contact.phones[index]) {
+    if (detailContact?.contact?.phones[index]) {
       editPhone({
         variables: {
           pk_columns: {
             contact_id: Number(id),
-            number: detailContact?.contact.phones[index].number
+            number: detailContact?.contact?.phones[index].number
           },
           new_phone_number: form.phones[index].number
         }
@@ -253,6 +254,12 @@ const ContactForm = () => {
   return (
     <>
       <MainContent>
+        {id && (
+          <Avatar size="extraLarge" className={css({ margin: "0 auto 3rem auto", fontSize: "1.5rem" })} >
+            {detailContact?.contact?.first_name[0]}{detailContact?.contact?.last_name[0]}
+          </Avatar>
+        )}
+
         <Container>
           <form onSubmit={handleSubmitAll}>
             <FlexJustifyBetween>

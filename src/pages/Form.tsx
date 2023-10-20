@@ -1,15 +1,17 @@
+import { useSearchParams } from "react-router-dom"
 import Header from "../components/organism/Header"
 import ContactForm from "../components/templates/ContactForm"
-// import AddContactForm from "../components/templates/AddContactForm"
 
 const Form = () => {
+  const [searchParams] = useSearchParams()
+  const id = searchParams.get("id")
+  const title = id ? "Edit Contact" : "Add Contact"
   return (
     <>
       <Header
-        title={"Add Contact"}
+        title={title}
         backPath={"/"}
       />
-      {/* <AddContactForm /> */}
       <ContactForm />
     </>
   )
