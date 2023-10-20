@@ -24,6 +24,7 @@ const Avatar = styled.div<Props>`
   background-color: var(--primary);
   color: var(--white);
   flex-shrink: 0;
+  font-weight: 700;
 `;
 
 export default Avatar;

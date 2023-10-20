@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom"
-import Button from "../atoms/Button"
 import { FC } from "react"
 import styled from "@emotion/styled";
 import { css } from "@emotion/css";
+import ButtonIcon from "../atoms/ButtonIcon";
+import ChevronLeftIcon from "../../icons/ChevronLeftIcon";
+import ChevronRightIcon from "../../icons/ChevronRightIcon";
+import Container from "../atoms/Container";
 
 interface Props {
   page: number;
@@ -23,27 +26,38 @@ const Pagination: FC<Props> = ({ page, totalPage }) => {
   };
 
   return (
-    <PaginationStyled>
-      <Button onClick={handlePrevPage}>&lt;</Button>
-      <PageNumbers page={page} totalPage={totalPage} />
-      <Button onClick={handleNextPage}>&gt;</Button>
-    </PaginationStyled>
+    <Container>
+      <PaginationStyled>
+        <ButtonIcon
+          onClick={handlePrevPage}
+          disabled={page === 1}
+        >
+          <ChevronLeftIcon />
+        </ButtonIcon>
+        <PageNumbers page={page} totalPage={totalPage} />
+        <ButtonIcon
+          onClick={handleNextPage}
+          disabled={page === totalPage}
+        >
+          <ChevronRightIcon />
+        </ButtonIcon>
+      </PaginationStyled>
+    </Container>
   );
 };
 
 const PaginationStyled = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
   margin: 1rem 0;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
 
 const PageNumbers = ({ page, totalPage }: any) => {
   const navigate = useNavigate();
-  // Determine when to shorten the list of page numbers based on screen size
+  const isMobile = window.innerWidth < 768;
 
-  const visiblePages = Array.from({ length: totalPage }, (_, i) => i + 1).reduce(
+  const visiblePages = !isMobile ? Array.from({ length: totalPage }, (_, i) => i + 1).reduce(
     (acc: any, curr: any) => {
       if (curr === 1 || curr === totalPage) {
         acc.push(curr);
@@ -53,35 +67,35 @@ const PageNumbers = ({ page, totalPage }: any) => {
         acc.push("...");
       }
       return acc;
-    },
-    []
-  );
+    }, []
+  ) : // show only 3 pages on mobile view
+    [page - 1, page, page + 1].filter((pageNumber) => pageNumber > 0 && pageNumber <= totalPage);
 
 
   return (
-    <div>
+    <>
       {visiblePages.map((pageNumber: any, index: any) => {
         const isCurrentPage = pageNumber === page;
         const isDots = pageNumber === "...";
 
         return (
-          <Button
+          <ButtonIcon
             key={index}
             onClick={() => {
               if (isDots) return;
               navigate(`/?page=${pageNumber}`);
             }}
+            bg={isCurrentPage ? "primary" : "gray-light"}
+            color={isCurrentPage ? "white" : "black"}
             className={css({
-              fontWeight: isCurrentPage ? "bold" : "normal",
-              textDecoration: isDots ? "none" : "underline",
               cursor: isDots ? "default" : "pointer",
             })}
           >
             {pageNumber}
-          </Button>
+          </ButtonIcon>
         );
       })}
-    </div >
+    </ >
   );
 };
 
