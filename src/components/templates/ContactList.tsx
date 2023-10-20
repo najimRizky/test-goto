@@ -67,7 +67,7 @@ const ContactList: FC = () => {
 
     let initial = ""
     const contactList = data?.contacts.map((contact) => {
-      const firstLetter = contact.first_name[0].toUpperCase()
+      const firstLetter = contact?.first_name[0]?.toUpperCase()
       let showInitial = false
       if (initial !== firstLetter && isAlphaNumeric(firstLetter)) {
         initial = firstLetter

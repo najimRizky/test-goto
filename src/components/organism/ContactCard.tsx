@@ -14,16 +14,18 @@ import { css } from "@emotion/css"
 import TrashIcon from "../../icons/TrashIcon"
 import ModalDelete from "./ModalDelete"
 import { useMutation } from "@apollo/client"
+import { useNotification } from "../../providers/NotificationProvider"
 
 interface Props {
   contact: Contact
 }
 
 const ContactCard: FC<Props> = ({ contact }) => {
+  const { addNotification } = useNotification()
   const navigate = useNavigate()
   const fullName = `${contact.first_name} ${contact.last_name}`
   const phones = contact.phones.map((phone) => phone.number).join(", ")
-  const avatarInitial = `${contact.first_name[0] || ""}${contact.last_name[0] || ""}`.toUpperCase()
+  const avatarInitial = `${contact?.first_name[0] || ""}${contact?.last_name[0] || ""}`.toUpperCase()
 
   const [deleteContact] = useMutation(DELETE_CONTACT, {
     refetchQueries: [
@@ -42,8 +44,15 @@ const ContactCard: FC<Props> = ({ contact }) => {
       variables: { id: Number(id) }
     }).then(() => {
       setDeleteProps({ onConfirm: undefined, isOpen: false })
+      addNotification({
+        message: "Contact deleted successfully",
+        type: "success"
+      })
     }).catch(() => {
-      alert("Error")
+      addNotification({
+        message: "Failed to delete contact",
+        type: "error"
+      })
     })
   }
 

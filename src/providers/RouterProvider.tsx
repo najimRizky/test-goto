@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout"
 import Home from "../pages/Home"
 import Error from "../pages/Error"
 import Form from "../pages/Form"
+import GlobalNotification from "../components/organism/GlobalNotification"
 
 const router = createBrowserRouter([
   {
@@ -26,7 +27,10 @@ const router = createBrowserRouter([
 
 const RouterProvider = () => {
   return (
-    <ReactRouterProvider router={router} />
+    <>
+      <ReactRouterProvider router={router} />
+      <GlobalNotification />
+    </>
   )
 }
 

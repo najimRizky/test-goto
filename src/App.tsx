@@ -1,11 +1,14 @@
 import ApolloProvider from "./providers/ApolloProvider";
+import NotificationProvider from "./providers/NotificationProvider";
 import RouterProvider from "./providers/RouterProvider";
 import "./styles/variables.css"
 
 function App() {
   return (
     <ApolloProvider>
-      <RouterProvider />
+      <NotificationProvider>
+        <RouterProvider />
+      </NotificationProvider>
     </ApolloProvider>
   );
 }

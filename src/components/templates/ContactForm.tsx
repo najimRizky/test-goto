@@ -19,6 +19,7 @@ import CheckIcon from "../../icons/CheckIcon"
 import CloseIcon from "../../icons/CloseIcon"
 import ModalDelete from "../organism/ModalDelete"
 import Avatar from "../atoms/Avatar"
+import { useNotification } from "../../providers/NotificationProvider"
 
 interface Form {
   first_name: string
@@ -38,6 +39,7 @@ const initialForm: Form = {
 
 const ContactForm = () => {
   const navigate = useNavigate()
+  const {addNotification} = useNotification()
 
   // Get id from url
   const [searchParams] = useSearchParams()
@@ -107,7 +109,10 @@ const ContactForm = () => {
         throw new Error("Contact not found")
       }
     }).catch(() => {
-      alert("Error fetching contact detail")
+      addNotification({
+        message: "Contact not found",
+        type: "error"
+      })
     })
   }
 
@@ -127,8 +132,15 @@ const ContactForm = () => {
       variables: form
     }).then((data) => {
       navigate(`/form?id=${data.data?.insert_contact?.returning[0].id}`)
+      addNotification({
+        message: "Contact added successfully",
+        type: "success"
+      })
     }).catch(() => {
-      alert("Error")
+      addNotification({
+        message: "Error adding contact",
+        type: "error"
+      })
     })
   }
 
@@ -159,8 +171,15 @@ const ContactForm = () => {
         fetchDetail()
         toggleEditMode(`phone-${index}`, false)
         setDeleteProps({ isOpen: false })
+        addNotification({
+          message: "Phone number deleted successfully",
+          type: "success"
+        })
       }).catch(() => {
-        alert(`Error deleting phone number ${index}`)
+        addNotification({
+          message: "Error deleting phone number",
+          type: "error"
+        })
       })
     }
   }
@@ -179,8 +198,15 @@ const ContactForm = () => {
       }).then(() => {
         fetchDetail()
         toggleEditMode(`phone-${index}`, false)
+        addNotification({
+          message: "Phone number edited successfully",
+          type: "success"
+        })
       }).catch(() => {
-        alert(`Error editing phone number ${index}`)
+        addNotification({
+          message: "Error editing phone number",
+          type: "error"
+        })
       })
     } else {
       addPhone({
@@ -191,8 +217,15 @@ const ContactForm = () => {
       }).then(() => {
         fetchDetail()
         toggleEditMode(`phone-${index}`, false)
+        addNotification({
+          message: "Phone number added successfully",
+          type: "success"
+        })
       }).catch(() => {
-        alert(`Error adding phone number ${index}`)
+        addNotification({
+          message: "Error adding phone number",
+          type: "error"
+        })
       })
     }
   }
@@ -210,8 +243,15 @@ const ContactForm = () => {
     }).then(() => {
       fetchDetail()
       toggleEditMode("contact", false)
+      addNotification({
+        message: "Contact edited successfully",
+        type: "success"
+      })
     }).catch(() => {
-      alert("Error editing contact")
+      addNotification({
+        message: "Error editing contact",
+        type: "error"
+      })
     })
   }
 
@@ -224,7 +264,10 @@ const ContactForm = () => {
     }).then(() => {
       navigate("/")
     }).catch(() => {
-      alert("Error deleting contact")
+      addNotification({
+        message: "Error deleting contact",
+        type: "error"
+      })
     })
   }
 
