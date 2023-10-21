@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { useLazyQuery, useMutation } from "@apollo/client"
 import { ADD_CONTACT_WITH_PHONES, ADD_PHONE, DELETE_CONTACT, DELETE_PHONE, EDIT_CONTACT, EDIT_PHONE, GET_CONTACT_DETAIL } from "../../services/contact"
 import { useNavigate, useSearchParams } from "react-router-dom"
@@ -20,6 +21,7 @@ import CloseIcon from "../../icons/CloseIcon"
 import ModalDelete from "../organism/ModalDelete"
 import Avatar from "../atoms/Avatar"
 import { useNotification } from "../../providers/NotificationProvider"
+import { isAlphaNumeric } from "../../utils/string-helper"
 
 interface Form {
   first_name: string
@@ -32,14 +34,41 @@ interface Form {
 const initialForm: Form = {
   first_name: "",
   last_name: "",
-  phones: [{
-    number: ""
-  }]
+  phones: []
+}
+
+const rules: {
+  [key: string]: {
+    required: boolean
+    minLength: number
+    maxLength: number
+    alphanumeric: boolean
+  }
+
+} = {
+  first_name: {
+    required: true,
+    alphanumeric: true,
+    minLength: 1,
+    maxLength: 50
+  },
+  last_name: {
+    required: false,
+    alphanumeric: true,
+    minLength: 0,
+    maxLength: 50
+  },
+  phones: {
+    required: true,
+    minLength: 8,
+    maxLength: 20,
+    alphanumeric: true
+  }
 }
 
 const ContactForm = () => {
   const navigate = useNavigate()
-  const {addNotification} = useNotification()
+  const { addNotification } = useNotification()
 
   // Get id from url
   const [searchParams] = useSearchParams()
@@ -56,6 +85,7 @@ const ContactForm = () => {
 
   // States
   const [form, setForm] = useState<Form>(deepCopy(initialForm))
+  const [errors, setErrors] = useState<any>(deepCopy(initialForm))
   const [editMode, setEditMode] = useState<any>()
   const [deleteProps, setDeleteProps] = useState<{ isOpen?: boolean; message?: string; onConfirm?: () => void }>()
 
@@ -90,6 +120,17 @@ const ContactForm = () => {
 
     setForm(newForm)
     toggleEditMode(type, false)
+
+    const newErrors = deepCopy(errors)
+    if (type.includes("phone")) {
+      newErrors.phones[index].number = ""
+    }
+    if (type === "contact") {
+      newErrors.first_name = ""
+      newErrors.last_name = ""
+    }
+
+    setErrors(newErrors)
   }
 
   // Fetch contact detail
@@ -104,6 +145,11 @@ const ContactForm = () => {
           first_name,
           last_name,
           phones: phones.map((phone) => ({ number: phone.number }))
+        })
+        setErrors({
+          first_name: "",
+          last_name: "",
+          phones: phones.map(() => ({ number: "" }))
         })
       } else {
         throw new Error("Contact not found")
@@ -122,11 +168,17 @@ const ContactForm = () => {
 
     const updatedForm = parseAndSetFormValue(name, value, { ...form });
     setForm(updatedForm);
+
+    const updatedErrors = parseAndSetFormValue(name, "", { ...errors });
+    setErrors(updatedErrors);
   }
 
   // Handle submit all (add contact with phones)
   const handleSubmitAll = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    const hasError = validateForm()
+    if (hasError) return
 
     addContactWithPhones({
       variables: form
@@ -150,6 +202,10 @@ const ContactForm = () => {
     newForm.phones.push({ number: "" })
     setForm(newForm)
 
+    const newErrors = deepCopy(errors)
+    newErrors.phones.push({ number: "" })
+    setErrors(newErrors)
+
     if (id) {
       toggleEditMode(`phone-${newForm.phones.length - 1}`, true)
     }
@@ -161,6 +217,10 @@ const ContactForm = () => {
       const newForm = deepCopy(form)
       newForm.phones.splice(index, 1)
       setForm(newForm)
+
+      const newErrors = deepCopy(errors)
+      newErrors.phones.splice(index, 1)
+      setErrors(newErrors)
     } else {
       deletePhone({
         variables: {
@@ -186,7 +246,15 @@ const ContactForm = () => {
 
   // Handle submit add/edit phone
   const handleSubmitPhone = (index: number) => {
-    if (detailContact?.contact?.phones[index]) {
+    if (detailContact?.contact?.phones[index]) { // Edit
+      const invalidPhone = validateField("phones", form.phones[index].number)
+      if (invalidPhone) {
+        const newErrors = deepCopy(errors)
+        newErrors.phones[index].number = invalidPhone
+        setErrors(newErrors)
+        return
+      }
+
       editPhone({
         variables: {
           pk_columns: {
@@ -232,6 +300,18 @@ const ContactForm = () => {
 
   // Handle submit edit contact (first name, last name)
   const handleSubmitEditContact = () => {
+    const invalidFirstName = validateField("first_name", form.first_name)
+    const invalidLastName = validateField("last_name", form.last_name)
+
+    if (invalidFirstName || invalidLastName) {
+      setErrors({
+        ...errors,
+        first_name: invalidFirstName,
+        last_name: invalidLastName
+      })
+      return
+    }
+
     editContact({
       variables: {
         id: Number(id),
@@ -294,6 +374,63 @@ const ContactForm = () => {
     }
   }
 
+  const validateField = (fieldName: string, value: any) => {
+    const rule = rules[fieldName]
+    if (!rule) return
+
+    const arrayRule = Object.keys(rule)
+    let error = ""
+
+    for (let i = 0; i < arrayRule.length; i++) {
+      switch (arrayRule[i]) {
+        case "required":
+          if (!value) {
+            console.log(fieldName)
+            error = "This field is required"
+          }
+          break;
+        case "minLength":
+          if (value.length < rule.minLength) {
+            error = `Minimum length is ${rule.minLength}`
+          }
+          break;
+        case "maxLength":
+          if (value.length > rule.maxLength) {
+            error = `Maximum length is ${rule.maxLength}`
+          }
+          break;
+        case "alphanumeric":
+          if (!isAlphaNumeric(value)) {
+            error = "Only alphanumeric allowed"
+          }
+          break;
+      }
+      if (error) break
+    }
+    return error
+  }
+
+
+  const validateForm = () => {
+    const newErrors = deepCopy(errors)
+    let hasError = false
+    Object.keys(form).forEach((key) => {
+      if (key === "phones") {
+        form[key].forEach((phone, index) => {
+          const error = validateField(key, phone.number)
+          if (error) hasError = true
+          newErrors[key as keyof Form][index].number = error
+        })
+      } else {
+        const error = validateField(key, form[key as keyof Form])
+        if (error) hasError = true
+        newErrors[key as keyof Form] = error
+      }
+    })
+    setErrors(newErrors)
+    return hasError
+  }
+
   const initialAvatar = `${detailContact?.contact?.first_name[0] || ""} ${detailContact?.contact?.last_name[0] || ""}`.toUpperCase()
 
   return (
@@ -328,8 +465,8 @@ const ContactForm = () => {
                         onClick={() => handleSubmitDelete("contact")}
                         type="button"
                         size="small"
-                        color="red"
-                        bg="gray-light"
+                        color="white"
+                        bg="red"
                       >
                         <TrashIcon width={18} />
                       </ButtonIcon>
@@ -367,6 +504,7 @@ const ContactForm = () => {
               fieldName="first_name"
               placeholder="Enter first name"
               disabled={!editMode?.contact && !!id}
+              error={errors.first_name}
             />
             <FormControl
               label="Last Name"
@@ -376,12 +514,15 @@ const ContactForm = () => {
               fieldName="last_name"
               placeholder="Enter last name"
               disabled={!editMode?.contact && !!id}
+              error={errors.last_name}
             />
             <FlexJustifyBetween className={css({ marginTop: "1.5rem", })}>
               <Text.H1 size="lg">
                 Phone Number
               </Text.H1>
               <Button
+                // disabled if there is an empty phone number
+                disabled={form.phones.some((phone) => !phone.number)}
                 type="button"
                 onClick={handleAddPhone}
                 className={css({ height: "2rem !important" })}
@@ -400,6 +541,7 @@ const ContactForm = () => {
                   fieldName={`phones.${index}.number`}
                   placeholder={`Enter phone number`}
                   disabled={!editMode?.[`phone-${index}`] && !!id}
+                  error={errors.phones[index]?.number}
                 />
                 {id ? (
                   <>
@@ -418,8 +560,8 @@ const ContactForm = () => {
                           onClick={() => handleSubmitDelete(`phone-${index}`, index)}
                           type="button"
                           size="small"
-                          color="red"
-                          bg="gray-light"
+                          color="white"
+                          bg="red"
                         >
                           <TrashIcon width={18} />
                         </ButtonIcon>
@@ -452,8 +594,8 @@ const ContactForm = () => {
                     onClick={() => handleSubmitDeletePhone(index)}
                     type="button"
                     size="small"
-                    color="red"
-                    bg="gray-light"
+                    color="white"
+                    bg="red"
                   >
                     <TrashIcon width={18} />
                   </ButtonIcon>
