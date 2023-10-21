@@ -1,6 +1,6 @@
 /* eslint-disable indent */
 import { useLazyQuery, useMutation } from "@apollo/client"
-import { ADD_CONTACT_WITH_PHONES, ADD_PHONE, DELETE_CONTACT, DELETE_PHONE, EDIT_CONTACT, EDIT_PHONE, GET_CONTACT_DETAIL } from "../../services/contact"
+import { ADD_CONTACT_WITH_PHONES, ADD_PHONE, Contact, DELETE_CONTACT, DELETE_PHONE, EDIT_CONTACT, EDIT_PHONE, GET_CONTACT_DETAIL, GET_CONTACT_LIST } from "../../services/contact"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { ChangeEvent, FormEvent, useEffect, useState } from "react"
 import { deepCopy } from "../../utils/object-helper"
@@ -75,6 +75,7 @@ const ContactForm = () => {
   const id = searchParams.get("id")
 
   // Queries and Mutations
+  const [getContacts] = useLazyQuery(GET_CONTACT_LIST, { fetchPolicy: "no-cache" })
   const [addContactWithPhones, { loading: loadingAdd }] = useMutation(ADD_CONTACT_WITH_PHONES)
   const [getContactDetail, { data: detailContact }] = useLazyQuery(GET_CONTACT_DETAIL, { fetchPolicy: "no-cache" })
   const [editContact] = useMutation(EDIT_CONTACT)
@@ -174,11 +175,26 @@ const ContactForm = () => {
   }
 
   // Handle submit all (add contact with phones)
-  const handleSubmitAll = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmitAll = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     const hasError = validateForm()
-    if (hasError) return
+    if (hasError) {
+      addNotification({
+        message: "Please fill all required fields",
+        type: "error"
+      })
+      return
+    }
+
+    const ifExist = await isContactExist()
+    if (ifExist) {
+      addNotification({
+        message: "Contact already exist",
+        type: "error"
+      })
+      return
+    }
 
     addContactWithPhones({
       variables: form
@@ -194,6 +210,37 @@ const ContactForm = () => {
         type: "error"
       })
     })
+  }
+
+  const isContactExist = async () => {
+    try {
+      const { first_name, last_name } = form
+
+      const { data } = await getContacts({
+        variables: {
+          where: {
+            "_or": [
+              { first_name: { _iregex: `(${first_name.split(" ").join("|")}|${first_name})` }, },
+              { last_name: { _iregex: `(${last_name.split(" ").join("|")}|${last_name})` } }
+            ]
+          }
+        }
+      })
+
+      const currentFullName = `${first_name} ${last_name}`.toLocaleLowerCase().trim()
+      const isExist = data?.contacts?.some((contact: Contact) => {
+        const fullName = `${contact.first_name} ${contact.last_name}`.toLocaleLowerCase().trim()
+        console.log(fullName, currentFullName)
+        console.log(contact.id, id)
+        if (fullName === currentFullName && id != contact.id) {
+          return true
+        }
+      })
+
+      return !!isExist
+    } catch (error) {
+      return false
+    }
   }
 
   // Handle add phone
@@ -252,6 +299,10 @@ const ContactForm = () => {
         const newErrors = deepCopy(errors)
         newErrors.phones[index].number = invalidPhone
         setErrors(newErrors)
+        addNotification({
+          message: "Invalid phone number",
+          type: "error"
+        })
         return
       }
 
@@ -299,7 +350,7 @@ const ContactForm = () => {
   }
 
   // Handle submit edit contact (first name, last name)
-  const handleSubmitEditContact = () => {
+  const handleSubmitEditContact = async () => {
     const invalidFirstName = validateField("first_name", form.first_name)
     const invalidLastName = validateField("last_name", form.last_name)
 
@@ -308,6 +359,19 @@ const ContactForm = () => {
         ...errors,
         first_name: invalidFirstName,
         last_name: invalidLastName
+      })
+      addNotification({
+        message: "Invalid form data",
+        type: "error"
+      })
+      return
+    }
+
+    const ifExist = await isContactExist()
+    if (ifExist) {
+      addNotification({
+        message: "Contact already exist",
+        type: "error"
       })
       return
     }
@@ -384,8 +448,7 @@ const ContactForm = () => {
     for (let i = 0; i < arrayRule.length; i++) {
       switch (arrayRule[i]) {
         case "required":
-          if (!value) {
-            console.log(fieldName)
+          if (!value && rule.required) {
             error = "This field is required"
           }
           break;
@@ -431,7 +494,7 @@ const ContactForm = () => {
     return hasError
   }
 
-  const initialAvatar = `${detailContact?.contact?.first_name[0] || ""} ${detailContact?.contact?.last_name[0] || ""}`.toUpperCase()
+  const initialAvatar = `${detailContact?.contact?.first_name[0] || ""}${detailContact?.contact?.last_name[0] || ""}`.toUpperCase()
 
   return (
     <>
