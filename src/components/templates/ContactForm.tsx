@@ -21,7 +21,6 @@ import CloseIcon from "../../icons/CloseIcon"
 import ModalDelete from "../organism/ModalDelete"
 import Avatar from "../atoms/Avatar"
 import { useNotification } from "../../providers/NotificationProvider"
-import { isAlphaNumeric } from "../../utils/string-helper"
 import { useContact } from "../../providers/ContactProvider"
 
 interface Form {
