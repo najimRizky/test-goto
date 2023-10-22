@@ -29,7 +29,7 @@ src
 ├── layouts (layout components)
 ├── pages (pages)
 ├── providers (context providers / HOC)
-├── services (services)
+├── services (services / graphql query)
 ├── styles (global styles)
 ├── tests (test files)
 └── utils (utility functions)
