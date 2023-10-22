@@ -111,7 +111,7 @@ const ContactList: FC = () => {
           </>
         )}
         <Container>
-          <Text.H2 className={css({ margin: "1rem 0 0.5rem 0" })}>All Contact</Text.H2>
+          <Text.H2 className={css({ margin: "1rem 0 0.5rem 0" })}>Regular Contact</Text.H2>
         </Container>
         {renderContactList}
       </main>
