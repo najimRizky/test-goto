@@ -94,11 +94,13 @@ const ContactList: FC = () => {
       {totalData > 0 && (
         <Pagination page={page} totalPage={totalPage} />
       )}
-      <NavLink to="/form">
+      <NavLink
+        to="/form"
+        {...{ "data-testid": "add-contact-btn" }}
+      >
         <FloatingActionButton
           isIcon={true}
           position="bottom-right"
-          data-testid="add-contact-btn"
           size="medium"
         >
           <PlusIcon width={36} />
