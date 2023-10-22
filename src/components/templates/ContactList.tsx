@@ -1,72 +1,43 @@
 import { FC, Fragment, useMemo } from "react"
-import {
-  useQuery
-} from "@apollo/client"
-import {
-  GET_CONTACT_LIST
-} from "../../services/contact"
 import ContactCard from "../organism/ContactCard"
 import { isAlphaNumeric } from "../../utils/string-helper"
 import { css } from "@emotion/css"
 import FloatingActionButton from "../molecules/FloatingActionButton"
 import PlusIcon from "../../icons/PlusIcon"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { NavLink, useSearchParams } from "react-router-dom"
 import Spinner from "../atoms/Spinner"
-import ErrorBox from "../organism/ErrorBox"
 import Container from "../atoms/Container"
 import Text from "../atoms/Text"
 import Pagination from "../organism/Pagination"
+import { useContact } from "../../providers/ContactProvider"
+import { Contact } from "../../services/contact"
 
 const per_page = 10
 
 const ContactList: FC = () => {
-  const navigate = useNavigate()
   const [searchParam] = useSearchParams()
   const page = parseInt(searchParam.get("page") || "1")
   const search = searchParam.get("search") || ""
 
-  const { loading, error, data } = useQuery(GET_CONTACT_LIST, {
-    variables: {
-      limit: per_page,
-      offset: (page - 1) * per_page,
-      order_by: {
-        first_name: "asc",
-        last_name: "asc"
-      },
-      where: {
-        "_or": [
-          {
-            first_name: {
-              "_iregex": `(${search.split(" ").join("|")}|${search})`
-            }
-          },
-          
-          {
-            last_name: {
-              "_iregex": `(${search.split(" ").join("|")}|${search})`
-            }
-          },
-          {
-            "phones": {
-              "number": {
-                "_ilike": `%${search}%`
-              }
-            }
-          }
-        ]
-      }
-    },
-    fetchPolicy: "network-only"
-  })
+  const { getContacts, getFavoriteContacts, loading } = useContact()
 
-  const totalData = data?.metadata?.aggregate.count || 0
+  const { contacts, length } = useMemo(() => getContacts(page, search), [page, search, getContacts])
+  const favoriteContacts = useMemo(() => getFavoriteContacts(), [getFavoriteContacts])
+  // const contacts: Contact[] = []
+  // const length = 0
+  // const favoriteContacts: Contact[] = []
+  const totalData = length || 0
   const totalPage = Math.ceil(totalData / per_page)
 
-  const renderContactList = useMemo(() => {
-    if (!data?.contacts || data?.contacts?.length === 0) return <Text.P className={css({ textAlign: "center", paddingTop: "8rem" })}>No Contact Found</Text.P>
+  const renderList = (data: Contact[], onEmpty: string) => {
+    if (!data || data?.length === 0) return (
+      <Container>
+        <Text.P >{onEmpty}</Text.P>
+      </Container>
+    )
 
     let initial = ""
-    const contactList = data?.contacts.map((contact) => {
+    const contactList = data.map((contact) => {
       const firstLetter = contact?.first_name[0]?.toUpperCase()
       let showInitial = false
       if (initial !== firstLetter && isAlphaNumeric(firstLetter)) {
@@ -95,26 +66,46 @@ const ContactList: FC = () => {
     })
 
     return contactList
-  }, [data])
+  }
+
+  const renderContactList = useMemo(() => {
+    return renderList(contacts, "No Contact Found")
+  }, [contacts])
+
+  const renderFavoriteContactList = useMemo(() => {
+    return renderList(favoriteContacts, "No Favorite Contact Found")
+  }, [favoriteContacts])
 
   if (loading) return <Spinner spaceY="2rem" />
-  if (error) return <ErrorBox />
+  // if (error) return <ErrorBox />
 
   return (
     <>
       <main className={css({ marginBottom: "2rem", minHeight: "70vh" })}>
+        <Container>
+          <Text.H2 className={css({ margin: "1rem 0 0.5rem 0" })}>Favorite Contact</Text.H2>
+        </Container>
+        {renderFavoriteContactList}
+        <Container>
+          <Text.H2 className={css({ margin: "1rem 0 0.5rem 0" })}>Regular Contact</Text.H2>
+        </Container>
         {renderContactList}
       </main>
       {totalData > 0 && (
         <Pagination page={page} totalPage={totalPage} />
       )}
-      <FloatingActionButton
-        onClick={() => navigate("/form")}
-        isIcon={true}
-        position="bottom-right"
+      <NavLink
+        to="/form"
+        {...{ "data-testid": "add-contact-btn" }}
       >
-        <PlusIcon width={42} />
-      </FloatingActionButton>
+        <FloatingActionButton
+          isIcon={true}
+          position="bottom-right"
+          size="medium"
+        >
+          <PlusIcon width={36} />
+        </FloatingActionButton>
+      </NavLink>
     </>
   )
 }

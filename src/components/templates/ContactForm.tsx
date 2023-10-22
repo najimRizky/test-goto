@@ -4,7 +4,7 @@ import { ADD_CONTACT_WITH_PHONES, ADD_PHONE, Contact, DELETE_CONTACT, DELETE_PHO
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { ChangeEvent, FormEvent, useEffect, useState } from "react"
 import { deepCopy } from "../../utils/object-helper"
-import { parseAndSetFormValue } from "../../utils/form-helper"
+import { parseAndSetFormValue, validateField } from "../../utils/form-helper"
 import MainContent from "../atoms/MainContent"
 import Container from "../atoms/Container"
 import FormControl from "../molecules/FormControl"
@@ -21,7 +21,7 @@ import CloseIcon from "../../icons/CloseIcon"
 import ModalDelete from "../organism/ModalDelete"
 import Avatar from "../atoms/Avatar"
 import { useNotification } from "../../providers/NotificationProvider"
-import { isAlphaNumeric } from "../../utils/string-helper"
+import { useContact } from "../../providers/ContactProvider"
 
 interface Form {
   first_name: string
@@ -69,15 +69,16 @@ const rules: {
 const ContactForm = () => {
   const navigate = useNavigate()
   const { addNotification } = useNotification()
+  const { getContact, updateContact, deleteContact: deleteContactLocal, addContact } = useContact()
 
   // Get id from url
   const [searchParams] = useSearchParams()
-  const id = searchParams.get("id")
+  const id = Number(searchParams.get("id") || 0)
 
   // Queries and Mutations
   const [getContacts] = useLazyQuery(GET_CONTACT_LIST, { fetchPolicy: "no-cache" })
   const [addContactWithPhones, { loading: loadingAdd }] = useMutation(ADD_CONTACT_WITH_PHONES)
-  const [getContactDetail, { data: detailContact }] = useLazyQuery(GET_CONTACT_DETAIL, { fetchPolicy: "no-cache" })
+  const [getContactDetail] = useLazyQuery(GET_CONTACT_DETAIL, { fetchPolicy: "no-cache" })
   const [editContact] = useMutation(EDIT_CONTACT)
   const [deleteContact] = useMutation(DELETE_CONTACT)
   const [addPhone] = useMutation(ADD_PHONE)
@@ -89,6 +90,7 @@ const ContactForm = () => {
   const [errors, setErrors] = useState<any>(deepCopy(initialForm))
   const [editMode, setEditMode] = useState<any>()
   const [deleteProps, setDeleteProps] = useState<{ isOpen?: boolean; message?: string; onConfirm?: () => void }>()
+  const [detailContact, setDetailContact] = useState<{ contact: Contact, source: "local" | "db" } | null>(null)
 
   // Fetch detail on mount if id is present
   useEffect(() => {
@@ -96,6 +98,12 @@ const ContactForm = () => {
       fetchDetail()
     }
   }, [id])
+
+  useEffect(() => {
+    if (detailContact?.source === "local") {
+      fetchDetail("local")
+    }
+  }, [getContact])
 
   // Toggle edit mode
   const toggleEditMode = (type: string, status: boolean) => {
@@ -134,33 +142,62 @@ const ContactForm = () => {
     setErrors(newErrors)
   }
 
-  // Fetch contact detail
-  const fetchDetail = () => {
-    getContactDetail({
-      variables: { id: Number(id) }
-    }).then((data) => {
-      const contact = data.data?.contact
-      if (contact) {
-        const { first_name, last_name, phones } = contact
-        setForm({
-          first_name,
-          last_name,
-          phones: phones.map((phone) => ({ number: phone.number }))
-        })
-        setErrors({
-          first_name: "",
-          last_name: "",
-          phones: phones.map(() => ({ number: "" }))
-        })
-      } else {
-        throw new Error("Contact not found")
-      }
-    }).catch(() => {
+  const getContactDetailLocal = () => {
+    const contact = getContact(id)
+    // console.log(contact, "REGET CONTACT")
+    if (contact) {
+      const { first_name, last_name, phones } = contact
+      setDetailContact({ contact, source: "local" })
+      setForm({
+        first_name,
+        last_name,
+        phones: phones.map((phone) => ({ number: phone.number }))
+      })
+      setErrors({
+        first_name: "",
+        last_name: "",
+        phones: phones.map(() => ({ number: "" }))
+      })
+    } else {
       addNotification({
         message: "Contact not found",
         type: "error"
       })
-    })
+    }
+  }
+
+  // Fetch contact detail
+  const fetchDetail = (type: "local" | "db" = "db") => {
+    if (type === "db") {
+      getContactDetail({
+        variables: { id: Number(id) }
+      }).then((data) => {
+        const contact = data.data?.contact
+        if (contact) {
+          const { first_name, last_name, phones } = contact
+          setDetailContact({ contact, source: "db" })
+          setForm({
+            first_name,
+            last_name,
+            phones: phones.map((phone) => ({ number: phone.number }))
+          })
+          setErrors({
+            first_name: "",
+            last_name: "",
+            phones: phones.map(() => ({ number: "" }))
+          })
+        } else { // from local
+          getContactDetailLocal()
+        }
+      }).catch(() => {
+        addNotification({
+          message: "Contact not found",
+          type: "error"
+        })
+      })
+    } else {
+      getContactDetailLocal()
+    }
   }
 
   // Handle input change
@@ -200,6 +237,10 @@ const ContactForm = () => {
       variables: form
     }).then((data) => {
       navigate(`/form?id=${data.data?.insert_contact?.returning[0].id}`)
+      addContact({
+        ...data.data?.insert_contact?.returning[0],
+        favorite: false
+      })
       addNotification({
         message: "Contact added successfully",
         type: "success"
@@ -268,6 +309,20 @@ const ContactForm = () => {
       const newErrors = deepCopy(errors)
       newErrors.phones.splice(index, 1)
       setErrors(newErrors)
+    } else if (detailContact?.source === "local") {
+      const newForm = deepCopy(form)
+      newForm.phones.splice(index, 1)
+      updateContact({
+        ...newForm,
+        id: Number(id),
+      })
+      toggleEditMode(`phone-${index}`, false)
+      // fetchDetail()
+      setDeleteProps({ isOpen: false })
+      addNotification({
+        message: "Phone number deleted successfully",
+        type: "success"
+      })
     } else {
       deletePhone({
         variables: {
@@ -293,66 +348,92 @@ const ContactForm = () => {
 
   // Handle submit add/edit phone
   const handleSubmitPhone = (index: number) => {
+    const invalidPhone = validateField("phones", form.phones[index].number, rules.phones)
+    if (invalidPhone) {
+      const newErrors = deepCopy(errors)
+      newErrors.phones[index].number = invalidPhone
+      setErrors(newErrors)
+      addNotification({
+        message: "Invalid phone number",
+        type: "error"
+      })
+      return
+    }
     if (detailContact?.contact?.phones[index]) { // Edit
-      const invalidPhone = validateField("phones", form.phones[index].number)
-      if (invalidPhone) {
-        const newErrors = deepCopy(errors)
-        newErrors.phones[index].number = invalidPhone
-        setErrors(newErrors)
-        addNotification({
-          message: "Invalid phone number",
-          type: "error"
+      if (detailContact?.source === "local") {
+        const newForm = deepCopy(form)
+        updateContact({
+          ...newForm,
+          id: Number(id),
         })
-        return
-      }
-
-      editPhone({
-        variables: {
-          pk_columns: {
-            contact_id: Number(id),
-            number: detailContact?.contact?.phones[index].number
-          },
-          new_phone_number: form.phones[index].number
-        }
-      }).then(() => {
-        fetchDetail()
         toggleEditMode(`phone-${index}`, false)
         addNotification({
           message: "Phone number edited successfully",
           type: "success"
         })
-      }).catch(() => {
-        addNotification({
-          message: "Error editing phone number",
-          type: "error"
+      } else {
+        console.log("EDIT PHONE LOCAL")
+        editPhone({
+          variables: {
+            pk_columns: {
+              contact_id: Number(id),
+              number: detailContact?.contact?.phones[index].number
+            },
+            new_phone_number: form.phones[index].number
+          }
+        }).then(() => {
+          fetchDetail()
+          toggleEditMode(`phone-${index}`, false)
+          addNotification({
+            message: "Phone number edited successfully",
+            type: "success"
+          })
+        }).catch(() => {
+          addNotification({
+            message: "Error editing phone number",
+            type: "error"
+          })
         })
-      })
+      }
     } else {
-      addPhone({
-        variables: {
-          contact_id: Number(id),
-          phone_number: form.phones[index].number
-        }
-      }).then(() => {
-        fetchDetail()
+      if (detailContact?.source === "local") {
+        const newForm = deepCopy(form)
+        updateContact({
+          ...newForm,
+          id: Number(id),
+        })
         toggleEditMode(`phone-${index}`, false)
         addNotification({
-          message: "Phone number added successfully",
+          message: "Phone number edited successfully",
           type: "success"
         })
-      }).catch(() => {
-        addNotification({
-          message: "Error adding phone number",
-          type: "error"
+      } else {
+        addPhone({
+          variables: {
+            contact_id: Number(id),
+            phone_number: form.phones[index].number
+          }
+        }).then(() => {
+          fetchDetail()
+          toggleEditMode(`phone-${index}`, false)
+          addNotification({
+            message: "Phone number added successfully",
+            type: "success"
+          })
+        }).catch(() => {
+          addNotification({
+            message: "Error adding phone number",
+            type: "error"
+          })
         })
-      })
+      }
     }
   }
 
   // Handle submit edit contact (first name, last name)
   const handleSubmitEditContact = async () => {
-    const invalidFirstName = validateField("first_name", form.first_name)
-    const invalidLastName = validateField("last_name", form.last_name)
+    const invalidFirstName = validateField("first_name", form.first_name, rules.first_name)
+    const invalidLastName = validateField("last_name", form.last_name, rules.last_name)
 
     if (invalidFirstName || invalidLastName) {
       setErrors({
@@ -376,43 +457,66 @@ const ContactForm = () => {
       return
     }
 
-    editContact({
-      variables: {
+    if (detailContact?.source === "local") {
+      updateContact({
+        first_name: form.first_name,
+        last_name: form.last_name,
         id: Number(id),
-        _set: {
-          first_name: form.first_name,
-          last_name: form.last_name
-        }
-      }
-    }).then(() => {
-      fetchDetail()
+        phones: detailContact?.contact?.phones
+      })
       toggleEditMode("contact", false)
       addNotification({
         message: "Contact edited successfully",
         type: "success"
       })
-    }).catch(() => {
-      addNotification({
-        message: "Error editing contact",
-        type: "error"
+    } else {
+      editContact({
+        variables: {
+          id: Number(id),
+          _set: {
+            first_name: form.first_name,
+            last_name: form.last_name
+          }
+        }
+      }).then(() => {
+        fetchDetail()
+        toggleEditMode("contact", false)
+        addNotification({
+          message: "Contact edited successfully",
+          type: "success"
+        })
+      }).catch(() => {
+        addNotification({
+          message: "Error editing contact",
+          type: "error"
+        })
       })
-    })
+    }
   }
 
   // Handle submit delete contact (Whole contact)
   const handleSubmitDeleteContact = () => {
-    deleteContact({
-      variables: {
-        id: Number(id)
-      }
-    }).then(() => {
+    if (detailContact?.source === "local") {
+      deleteContactLocal(id)
       navigate("/")
-    }).catch(() => {
       addNotification({
-        message: "Error deleting contact",
-        type: "error"
+        message: "Contact deleted successfully",
+        type: "success"
       })
-    })
+    } else {
+      deleteContact({
+        variables: {
+          id: Number(id)
+        }
+      }).then(() => {
+        navigate("/")
+      }).catch(() => {
+        addNotification({
+          message: "Error deleting contact",
+          type: "error"
+        })
+      })
+    }
   }
 
   // Handle submit delete (Show modal confirmation)
@@ -438,54 +542,18 @@ const ContactForm = () => {
     }
   }
 
-  const validateField = (fieldName: string, value: any) => {
-    const rule = rules[fieldName]
-    if (!rule) return
-
-    const arrayRule = Object.keys(rule)
-    let error = ""
-
-    for (let i = 0; i < arrayRule.length; i++) {
-      switch (arrayRule[i]) {
-        case "required":
-          if (!value && rule.required) {
-            error = "This field is required"
-          }
-          break;
-        case "minLength":
-          if (value.length < rule.minLength) {
-            error = `Minimum length is ${rule.minLength}`
-          }
-          break;
-        case "maxLength":
-          if (value.length > rule.maxLength) {
-            error = `Maximum length is ${rule.maxLength}`
-          }
-          break;
-        case "alphanumeric":
-          if (!isAlphaNumeric(value)) {
-            error = "Only alphanumeric allowed"
-          }
-          break;
-      }
-      if (error) break
-    }
-    return error
-  }
-
-
   const validateForm = () => {
     const newErrors = deepCopy(errors)
     let hasError = false
     Object.keys(form).forEach((key) => {
       if (key === "phones") {
         form[key].forEach((phone, index) => {
-          const error = validateField(key, phone.number)
+          const error = validateField(key, phone.number, rules[key as keyof Form] || {})
           if (error) hasError = true
           newErrors[key as keyof Form][index].number = error
         })
       } else {
-        const error = validateField(key, form[key as keyof Form])
+        const error = validateField(key, form[key as keyof Form], rules[key as keyof Form] || {})
         if (error) hasError = true
         newErrors[key as keyof Form] = error
       }
@@ -499,8 +567,8 @@ const ContactForm = () => {
   return (
     <>
       <MainContent>
-        {id && (
-          <Avatar size="extraLarge" className={css({ margin: "0 auto 3rem auto", fontSize: "1.5rem" })} >
+        {id !== 0 && (
+          <Avatar size="extraLarge" className={css({ margin: "0 auto 3rem auto", fontSize: "1.5rem" })}>
             {initialAvatar}
           </Avatar>
         )}
@@ -511,7 +579,7 @@ const ContactForm = () => {
               <Text.H1 size="lg">
                 Personal Information
               </Text.H1>
-              {id && (
+              {id !== 0 && (
                 <Flex>
                   {!editMode?.contact ? (
                     <>

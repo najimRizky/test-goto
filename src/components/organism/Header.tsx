@@ -3,7 +3,7 @@ import ButtonIcon from "../atoms/ButtonIcon"
 import styled from "@emotion/styled"
 import ChevronLeftIcon from "../../icons/ChevronLeftIcon"
 import { css } from "@emotion/css"
-import { useNavigate } from "react-router-dom"
+import { NavLink } from "react-router-dom"
 import Container from "../atoms/Container"
 
 interface Props {
@@ -13,7 +13,6 @@ interface Props {
 }
 
 const Header: FC<Props> = ({ backPath, title, rightAction }) => {
-  const navigate = useNavigate()
 
   return (
     <HeaderStyled>
@@ -21,8 +20,9 @@ const Header: FC<Props> = ({ backPath, title, rightAction }) => {
         <div className="header-content">
           <div className="left-panel">
             {backPath &&
+            <NavLink to={backPath}>
               <ButtonIcon
-                onClick={() => navigate(backPath)}
+                data-testid="back-button"
                 size="small"
                 bg="white"
                 color="black"
@@ -30,6 +30,7 @@ const Header: FC<Props> = ({ backPath, title, rightAction }) => {
               >
                 <ChevronLeftIcon width={36} />
               </ButtonIcon>
+            </NavLink>
             }
             {title && <h1>{title}</h1>}
           </div>
