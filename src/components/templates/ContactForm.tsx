@@ -4,7 +4,7 @@ import { ADD_CONTACT_WITH_PHONES, ADD_PHONE, Contact, DELETE_CONTACT, DELETE_PHO
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { ChangeEvent, FormEvent, useEffect, useState } from "react"
 import { deepCopy } from "../../utils/object-helper"
-import { parseAndSetFormValue } from "../../utils/form-helper"
+import { parseAndSetFormValue, validateField } from "../../utils/form-helper"
 import MainContent from "../atoms/MainContent"
 import Container from "../atoms/Container"
 import FormControl from "../molecules/FormControl"
@@ -349,7 +349,7 @@ const ContactForm = () => {
 
   // Handle submit add/edit phone
   const handleSubmitPhone = (index: number) => {
-    const invalidPhone = validateField("phones", form.phones[index].number)
+    const invalidPhone = validateField("phones", form.phones[index].number, rules.phones)
     if (invalidPhone) {
       const newErrors = deepCopy(errors)
       newErrors.phones[index].number = invalidPhone
@@ -433,8 +433,8 @@ const ContactForm = () => {
 
   // Handle submit edit contact (first name, last name)
   const handleSubmitEditContact = async () => {
-    const invalidFirstName = validateField("first_name", form.first_name)
-    const invalidLastName = validateField("last_name", form.last_name)
+    const invalidFirstName = validateField("first_name", form.first_name, rules.first_name)
+    const invalidLastName = validateField("last_name", form.last_name, rules.last_name)
 
     if (invalidFirstName || invalidLastName) {
       setErrors({
@@ -543,54 +543,18 @@ const ContactForm = () => {
     }
   }
 
-  const validateField = (fieldName: string, value: any) => {
-    const rule = rules[fieldName]
-    if (!rule) return
-
-    const arrayRule = Object.keys(rule)
-    let error = ""
-
-    for (let i = 0; i < arrayRule.length; i++) {
-      switch (arrayRule[i]) {
-        case "required":
-          if (!value && rule.required) {
-            error = "This field is required"
-          }
-          break;
-        case "minLength":
-          if (value.length < rule.minLength) {
-            error = `Minimum length is ${rule.minLength}`
-          }
-          break;
-        case "maxLength":
-          if (value.length > rule.maxLength) {
-            error = `Maximum length is ${rule.maxLength}`
-          }
-          break;
-        case "alphanumeric":
-          if (!isAlphaNumeric(value)) {
-            error = "Only alphanumeric allowed"
-          }
-          break;
-      }
-      if (error) break
-    }
-    return error
-  }
-
-
   const validateForm = () => {
     const newErrors = deepCopy(errors)
     let hasError = false
     Object.keys(form).forEach((key) => {
       if (key === "phones") {
         form[key].forEach((phone, index) => {
-          const error = validateField(key, phone.number)
+          const error = validateField(key, phone.number, rules[key as keyof Form] || {})
           if (error) hasError = true
           newErrors[key as keyof Form][index].number = error
         })
       } else {
-        const error = validateField(key, form[key as keyof Form])
+        const error = validateField(key, form[key as keyof Form], rules[key as keyof Form] || {})
         if (error) hasError = true
         newErrors[key as keyof Form] = error
       }
