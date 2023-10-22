@@ -15,6 +15,7 @@ import TrashIcon from "../../icons/TrashIcon"
 import ModalDelete from "./ModalDelete"
 import { useMutation } from "@apollo/client"
 import { useNotification } from "../../providers/NotificationProvider"
+import { useContact } from "../../providers/ContactProvider"
 
 interface Props {
   contact: Contact
@@ -22,6 +23,7 @@ interface Props {
 
 const ContactCard: FC<Props> = ({ contact }) => {
   const { addNotification } = useNotification()
+  const { setFavorite, deleteContact: deleteLocalContact } = useContact()
   const navigate = useNavigate()
   const fullName = `${contact.first_name} ${contact.last_name}`
   const phones = contact.phones.map((phone) => phone.number).join(", ")
@@ -39,7 +41,7 @@ const ContactCard: FC<Props> = ({ contact }) => {
     onConfirm: undefined
   })
 
-  const handleDeleteContact = (id: string) => {
+  const handleDeleteContact = (id: number) => {
     deleteContact({
       variables: { id: Number(id) }
     }).then(() => {
@@ -48,6 +50,7 @@ const ContactCard: FC<Props> = ({ contact }) => {
         message: "Contact deleted successfully",
         type: "success"
       })
+      deleteLocalContact(id)
     }).catch(() => {
       addNotification({
         message: "Failed to delete contact",
@@ -56,7 +59,7 @@ const ContactCard: FC<Props> = ({ contact }) => {
     })
   }
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     setDeleteProps({
       isOpen: true,
       onConfirm: () => handleDeleteContact(id)
@@ -102,6 +105,12 @@ const ContactCard: FC<Props> = ({ contact }) => {
               </Flex>,
               onClick: () => handleDelete(contact.id)
             },
+            {
+              label: <Flex className={css({ gap: "0.5rem !important" })}>
+                <PencilIcon width={18} />{!contact.favorite ? "Favorite" : "Unfavorite"}
+              </Flex>,
+              onClick: () => setFavorite(contact, !contact.favorite)
+            }
           ]}
         />
       </ContactCardStyled>
