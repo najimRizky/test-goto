@@ -271,8 +271,6 @@ const ContactForm = () => {
       const currentFullName = `${first_name} ${last_name}`.toLocaleLowerCase().trim()
       const isExist = data?.contacts?.some((contact: Contact) => {
         const fullName = `${contact.first_name} ${contact.last_name}`.toLocaleLowerCase().trim()
-        console.log(fullName, currentFullName)
-        console.log(contact.id, id)
         if (fullName === currentFullName && id != contact.id) {
           return true
         }
@@ -372,7 +370,6 @@ const ContactForm = () => {
           type: "success"
         })
       } else {
-        console.log("EDIT PHONE LOCAL")
         editPhone({
           variables: {
             pk_columns: {
