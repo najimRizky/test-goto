@@ -71,6 +71,14 @@ const ContactCard: FC<Props> = ({ contact }) => {
     setDeleteProps({ onConfirm: undefined, isOpen: false })
   }
 
+  const handleAddFavorite = (favorite: boolean) => {
+    setFavorite(contact, favorite)
+    addNotification({
+      message: `Contact ${favorite ? "added to" : "removed from"} favorite`,
+      type: favorite ? "success" : "warning"
+    })
+  }
+
   return (
     <>
       <ContactCardStyled>
@@ -113,7 +121,7 @@ const ContactCard: FC<Props> = ({ contact }) => {
                 </div>
                 {!contact.favorite ? "Favorite" : "Unfavorite"}
               </Flex>,
-              onClick: () => setFavorite(contact, !contact.favorite)
+              onClick: () => handleAddFavorite(!contact.favorite)
             }
           ]}
         />
