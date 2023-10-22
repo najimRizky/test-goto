@@ -16,6 +16,7 @@ import ModalDelete from "./ModalDelete"
 import { useMutation } from "@apollo/client"
 import { useNotification } from "../../providers/NotificationProvider"
 import { useContact } from "../../providers/ContactProvider"
+import StarIcon from "../../icons/StarIcon"
 
 interface Props {
   contact: Contact
@@ -107,7 +108,10 @@ const ContactCard: FC<Props> = ({ contact }) => {
             },
             {
               label: <Flex className={css({ gap: "0.5rem !important" })}>
-                <PencilIcon width={18} />{!contact.favorite ? "Favorite" : "Unfavorite"}
+                <div className={css({ color: !contact.favorite ? "var(--yellow)" : "var(--black)", transform: "translateY(2px)" })}>
+                  <StarIcon width={18} />
+                </div>
+                {!contact.favorite ? "Favorite" : "Unfavorite"}
               </Flex>,
               onClick: () => setFavorite(contact, !contact.favorite)
             }
