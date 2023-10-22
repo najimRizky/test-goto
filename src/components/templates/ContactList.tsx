@@ -98,8 +98,10 @@ const ContactList: FC = () => {
         <FloatingActionButton
           isIcon={true}
           position="bottom-right"
+          data-testid="add-contact-btn"
+          size="medium"
         >
-          <PlusIcon width={42} />
+          <PlusIcon width={36} />
         </FloatingActionButton>
       </NavLink>
     </>
