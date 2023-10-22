@@ -4,10 +4,10 @@ By: [Najim Rizky](https://najimr-izky.com)
 This project is a simple phone book application that can be used to store and retrieve contact information. This app is built using CRA (Create React App) PWA template and use apollo client as graphql client. This app use the combination of localsorage and graphql as the data source. If the data is not available in the localstorage, it will fetch the data from the graphql server. If the data is available in the localstorage, it will use the data from the localstorage and sync the data to the graphql server.
 ## How to run
 1. Clone this repository
-2. Run`npm install`
-3. - Run`npm start` to run the app in development mode
-   - Run`npm run build` to build the app for production
-   - Run`npm run test` to run the test
+2. Run `npm install`
+3. - Run `npm start` to run the app in development mode
+   - Run `npm run build` to build the app for production
+   - Run `npm run test` to run the test
 
 ## Tech Stack
 - React
